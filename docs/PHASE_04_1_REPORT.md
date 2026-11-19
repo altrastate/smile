@@ -12,7 +12,11 @@ The linked database was inspected and was not changed. It still has only the cat
 
 ## 3. Final commit hash
 
-Recorded after the implementation commit is created. The message is `Harden Phase 04 authentication and business approval workflows`.
+Implementation commit: `2592323c40f8a0acbf316587e13c3d20f3f9ca93`
+
+https://github.com/nutracueticals/Smile-Site/commit/2592323c40f8a0acbf316587e13c3d20f3f9ca93
+
+Message: `Harden Phase 04 authentication and business approval workflows`
 
 ## 4. Problems identified
 
