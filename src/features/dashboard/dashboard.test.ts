@@ -5,6 +5,7 @@ import {
   canSetPublication,
   listingLabel,
   storefrontCompletion,
+  resolveWorkspaceSelection,
   workspaceState,
 } from "@/features/dashboard/eligibility";
 import { detectProductImage, isSafeProductImagePath, maxProductImageBytes, productImagePath } from "@/features/dashboard/images";
@@ -21,6 +22,16 @@ describe("producer eligibility", () => {
     assert.equal(workspaceState({ approval: "approved", kind: "manufacturer" }), "other-kind");
     assert.equal(workspaceState({ approval: "pending", kind: "supplier" }), "other-kind");
     assert.equal(workspaceState(null), "none");
+  });
+
+  it("explains the only closed business instead of asking for a choice", () => {
+    const suspended = { id: "suspended", state: "suspended" as const };
+    const approved = { id: "approved", state: "eligible" as const };
+    assert.equal(resolveWorkspaceSelection([suspended], undefined).status, "blocked");
+    assert.equal(resolveWorkspaceSelection([approved], undefined).status, "ready");
+    assert.equal(resolveWorkspaceSelection([suspended, approved], undefined).status, "ready");
+    assert.equal(resolveWorkspaceSelection([suspended, approved], "suspended").status, "blocked");
+    assert.equal(resolveWorkspaceSelection([], undefined).status, "empty");
   });
 
   it("counts the four public storefront fields", () => {

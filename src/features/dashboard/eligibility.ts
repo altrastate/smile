@@ -19,6 +19,28 @@ export type MembershipRecord = {
 
 export type WorkspaceState = "eligible" | "pending" | "rejected" | "suspended" | "other-kind" | "none";
 
+export function resolveWorkspaceSelection<T extends { id: string; state: WorkspaceState }>(
+  businesses: T[],
+  selectedId: string | undefined,
+): { status: "empty" } | { status: "choose" } | { status: "ready" | "blocked"; business: T } {
+  if (businesses.length === 0) {
+    return { status: "empty" };
+  }
+  const selected = selectedId ? businesses.find((business) => business.id === selectedId) : undefined;
+  if (selected) {
+    return { status: selected.state === "eligible" ? "ready" : "blocked", business: selected };
+  }
+  if (businesses.length === 1) {
+    const only = businesses[0];
+    return { status: only.state === "eligible" ? "ready" : "blocked", business: only };
+  }
+  const eligible = businesses.filter((business) => business.state === "eligible");
+  if (eligible.length === 1) {
+    return { status: "ready", business: eligible[0] };
+  }
+  return { status: "choose" };
+}
+
 export function workspaceState(record: MembershipRecord | null): WorkspaceState {
   if (!record) {
     return "none";

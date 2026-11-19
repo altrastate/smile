@@ -99,13 +99,7 @@ The legacy anon key is not used. `.env.example` names the variables. `.env.local
 
 ### Types and migrations
 
-`src/types/database.ts` is generated from the linked database and matches the applied catalogue schema. `src/types/phase04.ts` and `src/types/phase05.ts` are hand-written supplements for migrations that have not been applied. Do not treat those files as generated. After the migrations are applied, regenerate:
-
-```bash
-supabase gen types typescript --linked --schema public > src/types/database.ts
-```
-
-Then remove the supplement once the generated file includes the new tables.
+`src/types/database.ts` is generated from the local schema after the Phase 05 migrations. The hand-written supplements are gone. Regenerate after a schema change with `npx supabase gen types typescript --local --schema public`. The generator types `p_years_operating` as `number`. That integer argument stores null when the field is blank, so the file keeps `number | null` for that argument.
 
 Create a migration only through the CLI, then edit that file:
 
@@ -117,37 +111,31 @@ Do not invent migration filenames. Do not use `apply_migration` to iterate on a 
 
 ### Database plan
 
-No business tables were created in Phase 01. Phase 03 adds the catalogue migration `supabase/migrations/20261119095711_catalogue_foundation.sql`. It has been applied to the linked project `wptcofcimxqkznqdpjbr`. Local Docker was not used.
+No business tables were created in Phase 01. Phase 03 adds the catalogue migration `supabase/migrations/20261119095711_catalogue_foundation.sql`. It is applied locally and on the linked project `wptcofcimxqkznqdpjbr`.
 
 The migration creates:
 
 | Table | Role in Phase 03 | Left for a later phase |
 | --- | --- | --- |
-| `businesses` | Public name, slug, and approval status (`pending`, `approved`, `rejected`, `suspended`) so a product can be attributed | Phase 04 adds `created_by` in the unapplied identity migration. The public catalogue still cannot read that column |
+| `businesses` | Public name, slug, and approval status (`pending`, `approved`, `rejected`, `suspended`) so a product can be attributed | Phase 04 adds `created_by`. Anonymous and authenticated clients cannot select that column or the contact columns |
 | `categories` | Name, slug, description, optional parent, display order, active flag. Six root categories are inserted | No separate category admin |
 | `products` | Catalogue record belonging to one business and one category, with publication status `draft`, `published`, or `archived` | Variants and prices (Phase 07) |
-| `product_images` | Storage path, alt text, order, and one primary image | Phase 05 adds the producer upload path in an unapplied migration |
+| `product_images` | Storage path, alt text, order, and one primary image | Phase 05 adds the producer upload path |
 
-Phase 04 adds `supabase/migrations/20261119113107_identity_and_applications.sql`. Phase 04.1 adds `20261119124504_application_history_guards.sql` and `20261119124532_application_transactions.sql`. Phase 05 adds `20261119131559_producer_storefront.sql`. None of these four migrations has been applied. They do not replace the catalogue migration. Approval still does not update `products`.
+Phase 04 adds `supabase/migrations/20261119113107_identity_and_applications.sql`. Phase 04.1 adds `20261119124504_application_history_guards.sql` and `20261119124532_application_transactions.sql`. Phase 05 adds `20261119131559_producer_storefront.sql`. A later migration, `20261119140843_category_parent_cycle.sql`, rejects a category parent cycle. All of these are applied locally and on the linked project. They do not replace the catalogue migration. Approval still does not update `products`.
 
-An approved producer manages listings through database functions. Those functions create drafts, edit listing text, and change publication among `draft`, `published`, and `archived`. Unpublishing returns a listing to `draft` and keeps `published_at`, so the workspace can show it as unpublished. Publishing does not change `businesses.approval_status`. Direct insert, update, and delete on `products` and `product_images` stay revoked. Storefront text is added to `businesses`. Contact email and telephone are revoked from anonymous and authenticated table reads and are returned only by `producer_workspaces()` to the signed-in member. `src/types/phase05.ts` is a hand-written supplement, not generated output.
+An approved producer manages listings through database functions. Those functions create drafts, edit listing text, and change publication among `draft`, `published`, and `archived`. Unpublishing returns a listing to `draft` and keeps `published_at`, so the workspace can show it as unpublished. Publishing does not change `businesses.approval_status`. Direct insert, update, and delete on `products` and `product_images` stay revoked. Storefront text is added to `businesses`. Contact email and telephone are not granted to anonymous or authenticated table reads. `producer_workspaces()` returns them only to the signed-in member.
 
 Creating, saving, and deciding an application each go through one database function, so the business, application, categories, membership, note, and history row change together or not at all. The privileged functions live in `private`. `public` wrappers are security invoker because the Data API only exposes `public`. Direct inserts and updates on businesses, applications, categories, memberships, events, and internal notes are revoked from `authenticated`. Document uploads still use storage and a document row, with a recovery row if the file cannot be removed after a failed insert.
 
-A product is publicly readable only when it is `published`, its business is `approved`, and its category is active. Business approval does not publish that business's products. Anonymous and authenticated roles can select those rows and cannot insert, update, or delete them. The `product-images` bucket is private. A storage select policy allows a file to be read only when a visible `product_images` row points at it. There is no public upload policy. The Phase 03.1 visibility matrix was not executed with fixture rows. Phase 04 does not change that.
+A product is publicly readable only when it is `published`, its business is `approved`, and its category is active. Business approval does not publish that business's products. Anonymous and authenticated roles can select those rows and cannot insert, update, or delete them. The `product-images` and `business-documents` buckets are private. A storage select policy allows a product file to be read only when a visible `product_images` row points at it. There is no public upload policy. The visibility matrix was executed locally with disposable identities. It was not repeated by inserting rows into the hosted project.
 
 Catalogue queries sanitise search text before it reaches Supabase. Product text uses the parameterised text-search filter. A category-name match is included only with category ids that are UUIDs. Listing order ends with the product id. A page past the result set is returned as an empty page.
 
 `private.set_updated_at` maintains `updated_at`. That function is not in an exposed schema.
 
-`src/types/database.ts` is generated from the linked database:
-
-```bash
-supabase gen types typescript --linked --schema public > src/types/database.ts
-```
-
-Regenerate it after a schema change. Do not run `supabase db push` against the linked project unless that approval is explicit.
+Regenerate `src/types/database.ts` from the local schema after a schema change. Do not run `supabase db push` against the linked project unless that approval is explicit. The Phase 05 push is already applied.
 
 ## What this phase does not include
 
-The public catalogue reads Supabase. Accounts and business applications are implemented in the application, and their migration is written but not applied. Dashboards, checkout, payments, networking, and the full administration console are not implemented. The catalogue migration has been applied to the linked database. The six categories exist. No products are listed yet.
+The public catalogue, accounts, business applications, review, and the producer workspace read the linked Supabase project. Checkout, payments, networking, and the full administration console are not implemented. The six categories exist. No products are listed yet. Phase 06 has not been started.

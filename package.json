@@ -11,7 +11,9 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/features/catalogue/catalogue.test.ts src/features/auth/validation.test.ts src/features/applications/transitions.test.ts src/features/applications/policies.test.ts src/features/applications/documents.test.ts src/features/dashboard/dashboard.test.ts"
+    "test": "tsx --test src/features/catalogue/catalogue.test.ts src/features/auth/validation.test.ts src/features/applications/transitions.test.ts src/features/applications/policies.test.ts src/features/applications/documents.test.ts src/features/dashboard/dashboard.test.ts",
+    "test:db": "tsx --test --test-concurrency=1 tests/db/matrix.test.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -29,12 +31,15 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^24.10.1",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.4.6",
+    "pg": "^8.23.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.3.5",
     "tsx": "^4.23.15",

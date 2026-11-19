@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Field, controlClass } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { saveApplication, uploadApplicationDocument } from "@/features/applications/actions";
+import { saveApplication, submitApplication, uploadApplicationDocument } from "@/features/applications/actions";
 import { requireUser } from "@/features/auth/session";
 
 export const metadata: Metadata = { title: "Business application" };
@@ -185,7 +185,7 @@ export default async function ApplicationEditorPage({
         {open ? (
           <div className="flex flex-wrap gap-3">
             <SubmitButton pendingLabel="Saving">Save draft</SubmitButton>
-            <button formAction={saveApplication} name="intent" value="submit" className="inline-flex min-h-11 items-center border border-forest-800 bg-forest-800 px-4 text-sm font-semibold text-ivory-50">
+            <button formAction={submitApplication} className="inline-flex min-h-11 items-center border border-forest-800 bg-forest-800 px-4 text-sm font-semibold text-ivory-50">
               Submit application
             </button>
           </div>

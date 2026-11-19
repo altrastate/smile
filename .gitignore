@@ -13,6 +13,10 @@ dist
 supabase/.temp
 supabase/.branches
 
+test-results
+playwright-report
+blob-report
+
 # Source photography stays local until it is managed from the admin dashboard.
 # Anchored to the repository root so it does not hide src/app/dashboard/products.
 /Products/

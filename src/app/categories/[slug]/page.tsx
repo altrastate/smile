@@ -27,8 +27,11 @@ type CategoryPageProps = {
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const result = await getCategory(slug);
-  if (result.status !== "ok" || !result.category) {
+  if (result.status !== "ok") {
     return { title: "Category" };
+  }
+  if (!result.category) {
+    notFound();
   }
   return {
     title: result.category.name,

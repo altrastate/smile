@@ -186,6 +186,12 @@ for insert
 to authenticated
 with check (reported_by = (select auth.uid()));
 
+create policy "Reporters read their own document orphans"
+on public.business_document_orphans
+for select
+to authenticated
+using (reported_by = (select auth.uid()));
+
 create policy "Reviewers read document orphans"
 on public.business_document_orphans
 for select

@@ -38,7 +38,11 @@ alter table public.businesses
 comment on column public.businesses.created_by is
   'Auth user who created this business record. Null on rows that existed before Phase 04. Not part of the public catalogue.';
 
-revoke select (created_by) on table public.businesses from anon, authenticated;
+-- A table-level select grant covers every column, including ones added later.
+-- Replace it with the public columns so created_by cannot be read by the API.
+revoke select on table public.businesses from anon, authenticated;
+grant select (id, display_name, slug, approval_status, created_at, updated_at)
+  on table public.businesses to anon, authenticated;
 
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,

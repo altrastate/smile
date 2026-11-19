@@ -31,7 +31,9 @@ comment on column public.businesses.contact_email is
 comment on column public.businesses.contact_phone is
   'Private storefront contact. Not granted to anonymous or authenticated catalogue reads.';
 
-revoke select (contact_email, contact_phone) on table public.businesses from anon, authenticated;
+-- New columns are not covered by the earlier column grants. Contact stays ungranted.
+grant select (description, country_code, city, district, website)
+  on table public.businesses to anon, authenticated;
 
 create index products_business_updated_idx on public.products (business_id, updated_at desc);
 
@@ -499,8 +501,8 @@ set search_path = ''
 as $$
 declare
   actor uuid := auth.uid();
-  business_id uuid;
-  product_id uuid;
+  parsed_business uuid;
+  parsed_product uuid;
 begin
   if actor is null or object_name is null then
     return false;
@@ -508,16 +510,16 @@ begin
   if object_name !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$' then
     return false;
   end if;
-  business_id := split_part(object_name, '/', 1)::uuid;
-  product_id := split_part(object_name, '/', 2)::uuid;
+  parsed_business := split_part(object_name, '/', 1)::uuid;
+  parsed_product := split_part(object_name, '/', 2)::uuid;
   return exists (
     select 1
     from public.products as p
     join public.business_members as m on m.business_id = p.business_id and m.user_id = actor
     join public.businesses as b on b.id = p.business_id
     join public.business_applications as a on a.business_id = b.id
-    where p.id = product_id
-      and p.business_id = business_id
+    where p.id = parsed_product
+      and p.business_id = parsed_business
       and b.approval_status = 'approved'
       and a.business_kind = 'producer'
   );
@@ -525,6 +527,17 @@ end;
 $$;
 
 revoke all on function private.producer_may_store_image(text) from public, anon, authenticated;
+
+-- Security-invoker public wrappers run as the caller, so authenticated needs execute on these private functions.
+-- assert_producer and copy_approved_storefront stay revoked: only other definer functions call them.
+grant execute on function private.producer_workspaces() to authenticated;
+grant execute on function private.update_producer_storefront(uuid, text, text, text, text, text, text, text, text) to authenticated;
+grant execute on function private.create_producer_product(uuid, uuid, text, text, text, text, text, text, text, text, text) to authenticated;
+grant execute on function private.update_producer_product(uuid, uuid, text, text, text, text, text, text, text, text, text) to authenticated;
+grant execute on function private.set_producer_product_status(uuid, public.product_publication_status) to authenticated;
+grant execute on function private.attach_product_image(uuid, text, text) to authenticated;
+grant execute on function private.remove_product_image(uuid) to authenticated;
+grant execute on function private.producer_may_store_image(text) to authenticated;
 
 create or replace function public.producer_workspaces()
 returns table (

@@ -218,6 +218,7 @@ as $$
 declare
   actor uuid := auth.uid();
   owner uuid;
+  current_status public.application_status;
 begin
   if actor is null then
     raise exception 'authentication is required';
@@ -234,8 +235,8 @@ begin
     raise exception 'that status change is not available';
   end if;
 
-  select applicant_id
-  into owner
+  select applicant_id, status
+  into owner, current_status
   from public.business_applications
   where id = p_application_id
   for update;
@@ -245,6 +246,9 @@ begin
   end if;
   if owner = actor then
     raise exception 'you cannot decide your own application';
+  end if;
+  if current_status is not distinct from p_status then
+    raise exception 'that status change is not available';
   end if;
 
   if nullif(trim(coalesce(p_internal_note, '')), '') is not null then
@@ -263,6 +267,10 @@ revoke all on function private.start_business_application(text) from public, ano
 revoke all on function private.save_business_application(uuid, text, text, public.application_status, public.business_kind, text, text, text, text, text, text, text, text, text, public.registration_standing, text, text, text, text, text, text, text, integer, text, boolean, boolean, boolean, uuid[]) from public, anon, authenticated;
 revoke all on function private.withdraw_business_application(uuid) from public, anon, authenticated;
 revoke all on function private.decide_business_application(uuid, public.application_status, text, text) from public, anon, authenticated;
+
+-- Invoker wrappers run as authenticated and must be able to resolve private functions.
+-- Execute stays limited to the functions granted below. The API does not expose the private schema.
+grant usage on schema private to authenticated;
 
 grant execute on function private.start_business_application(text) to authenticated;
 grant execute on function private.save_business_application(uuid, text, text, public.application_status, public.business_kind, text, text, text, text, text, text, text, text, text, public.registration_standing, text, text, text, text, text, text, text, integer, text, boolean, boolean, boolean, uuid[]) to authenticated;

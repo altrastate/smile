@@ -36,7 +36,7 @@ The workspace uses the existing businesses, products, categories, and product_im
 
 ## 6. Database changes
 
-Added, not applied: `supabase/migrations/20261119131559_producer_storefront.sql`.
+Applied locally and on the linked project: `supabase/migrations/20261119131559_producer_storefront.sql`.
 
 It adds public storefront columns to `businesses`, a path check on `product_images`, `product_image_orphans`, and functions for workspace lookup, storefront update, product create, product update, publication change, and image attach or remove. It also adds a select policy so an approved producer can read their own unpublished listings.
 
@@ -88,9 +88,9 @@ An anonymous visit to `/dashboard` redirects to `/login?next=%2Fdashboard`. On t
 
 ## 15. Known limitations
 
-- The four identity and producer migrations are committed and not applied.
-- Generated types still describe the catalogue schema only.
-- Email delivery remains unverified from Phase 04.
+Sections 20–23 replace the status below. The limitations that remain are listed there.
+
+- Email delivery to an external mailbox remains unverified.
 - A producer can restore an archived listing to draft, not directly back to published.
 - The public business directory is still closed. Only a direct storefront address is open.
 - Image upload is storage plus a database function, not one database transaction. A failed database insert removes the object, and a failed removal is recorded in `product_image_orphans`.
@@ -103,7 +103,7 @@ Phase 05 SQL uses `business_members`, `business_applications`, `business_kind`, 
 2. `20261119124504_application_history_guards.sql`
 3. `20261119124532_application_transactions.sql`
 
-Until those are applied, `/dashboard` tells a signed-in user that the workspace is not available.
+Those migrations, the producer migration, and the category-cycle migration are applied locally and on the linked project.
 
 ## 17. Migration instructions
 
@@ -131,8 +131,33 @@ The workspace does not use user metadata for authorization and does not read a s
 
 Manufacturer and supplier workspaces, inventory, variants, pricing, cart, checkout, orders, payments, delivery, the business directory, wholesale, service providers, a full admin console, and notifications were not built.
 
-## 20. Final readiness recommendation
+## 20. Verification on 19 November 2026
 
-Conditionally accepted. The producer workspace and the publication rules are implemented and unit-tested. Phase 05 is not fully accepted until the identity and producer migrations are applied on an approved database and the permission matrix is executed there.
+Local Docker Supabase is running with the ports in `supabase/config.toml` (API 54421, database 54422, Studio 54423, mail 54424). A clean local reset applied every migration, including `20261119140843_category_parent_cycle.sql`. The database suite then passed: 18 tests, 0 failed. That suite uses separate authenticated identities. It covers catalogue visibility, application isolation, illegal transitions, self-approval, transaction rollback, concurrent review decisions, producer isolation, storage authorization, and local auth mail. It does not use the hosted project.
 
-Phase 06 was not started.
+The browser suite passed once: register, confirm through the local mail capture, submit an application, approve it as a different reviewer, edit the storefront, create and edit a listing, upload and remove an image, publish, confirm the public page, unpublish to a 404, publish again, archive to a 404, then confirm the workspace stays closed for a suspended producer, an approved manufacturer, a pending producer, a user with no business, a reviewer opening another business's listing, and an anonymous visitor. Widths 360, 390, 430, 768, 1024, and 1440 were checked on the login page and the shop page.
+
+Unit tests: 39 passed, 0 failed. Typecheck, lint, and the production build passed locally.
+
+The linked project `wptcofcimxqkznqdpjbr` already had `20261119095711` only. It had 6 categories, 0 businesses, 0 products, and 0 images. A schema dump was written outside the repository before the push. `supabase db push` then applied the five remaining migrations. After the push, the same row counts remained, row-level security was enabled on the public tables, both storage buckets were private, the application and producer functions were present, anonymous clients could read category names and could not select `contact_email`, and the public product list was empty. No hosted test account was created.
+
+## 21. Corrections found during verification
+
+- Column `REVOKE` did not remove `contact_email` or `created_by` while the table `SELECT` grant remained. The grants are now limited to the public columns.
+- Security-invoker wrappers could not see `private` until `authenticated` had usage on that schema. Execute stays limited to the wrapper targets.
+- `producer_may_store_image` used variable names that collided with columns, so an image upload failed.
+- A category parent cycle longer than a self-parent was not rejected.
+- A React 19 submit button dropped `name="intent"`, so submitting an application saved a draft.
+- A producer whose only business was suspended saw a business chooser instead of the suspension message.
+- `app/shop/loading.tsx` started the response before `notFound()`, so an unpublished product stayed HTTP 200. Those loading files were removed, and missing catalogue records call `notFound()` from metadata as well.
+
+## 22. Remaining limitations
+
+- Local mail is captured by the local mail service. Real SMTP delivery was not tested.
+- Storage enforces the declared content type and size. The application checks the file signature before upload. A direct Storage API call that declares `image/jpeg` and sends other bytes is not rejected by the bucket.
+- The hosted project was not given fixture accounts, documents, or products. The permission matrix remains a local result.
+- An archived listing returns to draft before it can be published again.
+
+## 23. Final readiness recommendation
+
+The local permission matrix, the producer browser flow, and the hosted schema update are done. GitHub Actions for the commit that contains this verification is the remaining automated check. Phase 06 was not started.

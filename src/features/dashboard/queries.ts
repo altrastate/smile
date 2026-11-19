@@ -8,6 +8,7 @@ import { listCategories } from "@/features/catalogue/queries";
 import {
   approvalStatuses,
   businessKinds,
+  resolveWorkspaceSelection,
   workspaceState,
   type ApprovalStatus,
   type BusinessKind,
@@ -96,19 +97,11 @@ export const loadWorkspace = cache(async (): Promise<WorkspaceLoad> => {
     return { status: "unavailable", message: "The producer workspace could not be loaded." };
   }
   const businesses = parsed.data.map(mapBusiness);
-  if (businesses.length === 0) {
-    return { status: "empty" };
+  const resolved = resolveWorkspaceSelection(businesses, (await cookies()).get(cookieName)?.value);
+  if (resolved.status === "empty" || resolved.status === "choose") {
+    return resolved.status === "empty" ? { status: "empty" } : { status: "choose", businesses };
   }
-  const selected = (await cookies()).get(cookieName)?.value;
-  const eligible = businesses.filter((business) => business.state === "eligible");
-  const chosen = businesses.find((business) => business.id === selected) ?? (eligible.length === 1 ? eligible[0] : null);
-  if (!chosen) {
-    return { status: "choose", businesses };
-  }
-  if (chosen.state !== "eligible") {
-    return { status: "blocked", business: chosen, businesses };
-  }
-  return { status: "ready", business: chosen, businesses };
+  return { status: resolved.status, business: resolved.business, businesses };
 });
 
 export async function selectedBusinessId() {
@@ -318,6 +311,7 @@ export async function recentProducts(businessId: string) {
     .select("id, name, slug, publication_status, published_at, updated_at, category_id")
     .eq("business_id", businessId)
     .order("updated_at", { ascending: false })
+    .order("id", { ascending: true })
     .limit(5);
   if (error) {
     return [];

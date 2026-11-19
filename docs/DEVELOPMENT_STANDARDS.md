@@ -57,7 +57,9 @@ Before a phase is called complete, run:
 npm run typecheck
 npm run lint
 npm test
+npm run test:db
+npm run test:e2e
 npm run build
 ```
 
-Record the result. Do not report a check that was not run.
+`npm test` does not start a database. `npm run test:db` and `npm run test:e2e` use the local Supabase stack from `npx supabase start`. Record the result. Do not report a check that was not run, and do not describe a unit test as a database test.

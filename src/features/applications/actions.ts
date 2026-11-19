@@ -132,6 +132,11 @@ export async function startApplication() {
   redirect(`/business/apply/${started.data}`);
 }
 
+export async function submitApplication(formData: FormData) {
+  formData.set("intent", "submit");
+  return saveApplication(formData);
+}
+
 export async function saveApplication(formData: FormData) {
   const applicationId = String(formData.get("applicationId") ?? "");
   const intent = String(formData.get("intent") ?? "save");

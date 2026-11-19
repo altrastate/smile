@@ -2,7 +2,7 @@
 
 Web application for the Smile Nutraceuticals marketplace, developed by Altrastate Technologies Ltd.
 
-The public site explains the marketplace and reads the product catalogue from Supabase. Personal accounts, business applications, a restricted review queue, and a producer workspace are implemented. The identity migrations and the producer migration have not been applied to the linked database, so those screens cannot save data until they are. Checkout is not open. The catalogue migration has been applied. No products are listed yet.
+The public site explains the marketplace and reads the product catalogue from Supabase. Personal accounts, business applications, a restricted review queue, and a producer workspace are implemented. The catalogue, identity, application, and producer migrations are applied to the linked project `wptcofcimxqkznqdpjbr`. Checkout is not open. No products are listed yet.
 
 Repository: https://github.com/nutracueticals/Smile-Site
 
@@ -28,14 +28,28 @@ npm run dev
 
 The site is at `http://127.0.0.1:3000`.
 
+## Local Supabase
+
+Docker and the Supabase CLI run the local stack. This project does not use the default ports, because another local stack already uses them. From `supabase/config.toml`: API `54421`, database `54422`, Studio `54423`, and mail capture `54424`.
+
+```bash
+npx supabase start
+```
+
+Local email confirmation is captured by the local mail service. That does not send mail from the hosted project. Do not commit `.env.local` or the local keys printed by `npx supabase status`.
+
 ## Checks
 
 ```bash
 npm run typecheck
 npm run lint
 npm test
+npm run test:db
+npm run test:e2e
 npm run build
 ```
+
+`npm test` is the unit suite. `npm run test:db` needs the local stack and talks to Postgres as the disposable identities. `npm run test:e2e` starts the app against that same local stack. CI runs all three. None of them uses the hosted project.
 
 ## Documents
 

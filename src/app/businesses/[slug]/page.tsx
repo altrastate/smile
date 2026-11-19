@@ -16,8 +16,11 @@ type StorefrontPageProps = {
 export async function generateMetadata({ params }: StorefrontPageProps): Promise<Metadata> {
   const { slug } = await params;
   const result = await getPublicStorefront(slug);
-  if (result.status !== "ok" || !result.business) {
+  if (result.status !== "ok") {
     return { title: "Business" };
+  }
+  if (!result.business) {
+    notFound();
   }
   return {
     title: result.business.name,
