@@ -23,4 +23,4 @@ The sequence below is fixed. A phase does not start until the previous phase is 
 19. Security, integration, performance and end-to-end testing.
 20. Production launch, documentation and handover.
 
-Phase 01 is the current phase. Phase 02 has not been started.
+Phase 01 and Phase 02 are complete. Phase 03 has not been started.

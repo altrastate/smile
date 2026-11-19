@@ -39,6 +39,7 @@
     background: var(--color-ivory-50);
     color: var(--color-charcoal-900);
     font-family: var(--font-sans);
+    overflow-x: clip;
   }
 
   :focus-visible {

@@ -44,7 +44,7 @@ Spacing follows Tailwind’s 4px scale. Related controls use `gap-2` or `gap-3`.
 
 The content width is `max-w-6xl` (72rem) with `px-5` of page padding. A reading measure stays near `max-w-xl` or `max-w-2xl`.
 
-From the large breakpoint, the foundation page uses a 12-column grid: seven columns of writing and five of supporting content. Stack to one column below that.
+From the large breakpoint, the homepage hero uses two columns: writing, then the botanical drawing. Sections stack to one column below that.
 
 ## Borders, radius, and shadow
 
@@ -73,7 +73,7 @@ Shared controls are in `src/components/ui`.
 | Input, textarea, select, search field | Always labelled. Errors set `aria-invalid` and point at the message |
 | Checkbox and radio | Native controls, 44px hit area |
 | Badge | Short status text, not a button |
-| Dialog | Focus is kept inside. Always has a title and a Close control |
+| Dialog | Focus is kept inside. Always has a title and a Close control. `align="end"` places it as a side panel for the mobile menu |
 | Dropdown menu | Keyboard menu for a small set of actions |
 | Tooltip | Extra name for an icon button. Not the only name |
 | Tabs | One visible panel at a time |
@@ -91,15 +91,13 @@ Every control has a visible `:focus-visible` outline in botanical green. Icon bu
 
 ## Loading and errors
 
-A loading state is rendered only while a real request is in flight. Phase 01 has no such request on the foundation screen.
+A loading state is rendered only while a real request is in flight. The public pages do not start a request on load.
 
 Validation errors are attached to the field. A successful local check says that nothing was saved. Network and database failures go through `toAppError` and are shown as an alert. They are not replaced with an empty success state.
 
 ## Imagery
 
-`public/brand/logo.svg` is the full lockup traced from the supplied artwork, with a transparent background. `public/brand/mark.svg` is the hand and leaves alone, used in the header beside the name. The original raster remains at `logo.png`.
-
-Product photographs in `Products/` stay out of the interface until they belong to real catalogue records.
+`public/brand/logo.svg` is the full lockup traced from the supplied artwork, with a transparent background. `public/brand/mark.svg` is the hand and leaves alone, used in the header beside the name. `public/brand/canopy.svg` is an original line drawing made for the homepage. It is not a photograph and it is not a Smile product. No third-party image is hotlinked. Product photographs in `Products/` stay out of the interface until they belong to real catalogue records.
 
 ## Commerce conventions for later phases
 

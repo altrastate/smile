@@ -13,15 +13,18 @@ type DialogContentProps = {
   description?: string;
   children: ReactNode;
   className?: string;
+  align?: "center" | "end";
 };
 
-export function DialogContent({ title, description, children, className }: DialogContentProps) {
+export function DialogContent({ title, description, children, className, align = "center" }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-forest-950/50" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 w-[min(100%-2rem,32rem)] -translate-x-1/2 -translate-y-1/2 bg-ivory-50 p-6 shadow-soft",
+          "fixed z-50 bg-ivory-50 p-6 shadow-soft",
+          align === "center" && "top-1/2 left-1/2 w-[min(100%-2rem,32rem)] -translate-x-1/2 -translate-y-1/2",
+          align === "end" && "top-0 right-0 h-full w-[min(100%,22rem)] overflow-y-auto",
           className,
         )}
       >

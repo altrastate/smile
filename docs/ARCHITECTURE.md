@@ -27,16 +27,35 @@ Sensitive work belongs in Server Components, server functions, or the database. 
 
 There is no service-role client in this phase. When one is required, it lives in a `server-only` module, reads `SUPABASE_SERVICE_ROLE_KEY`, and is never imported by a client component. Authorization data belongs in `app_metadata`, not in user-editable `user_metadata`.
 
+## Public site
+
+Phase 02 replaced the foundation demonstration with the public site. The homepage is composed from server components under `src/components/home`. The shell is under `src/components/layout`. Search, the mobile menu, and the account notice are the client pieces, because they open and close.
+
+Implemented pages:
+
+| Path | What it is |
+| --- | --- |
+| `/` | Homepage |
+| `/about` | About Smile |
+| `/contact` | Contact status. No address, telephone, or email is published |
+| `/shop`, `/categories`, `/businesses`, `/services` | Honest “not open yet” pages. They are not catalogues |
+| Any other path | `not-found` |
+
+`/account` and the later auth, business, and admin paths stay unimplemented. The header Account control says that accounts are not open. On smaller screens that note is inside the menu.
+
+Discovery themes in `src/config/discovery.ts` are editorial categories. They are not product records. The future path is: a producer publishes a product in Supabase, and the public marketplace reads that record. Do not add a hardcoded catalogue beside that.
+
 ## Folder structure
 
 ```text
 src/
   app/                  routes, root layout, global styles
   components/
-    foundation/         Phase 01 design-system screen
-    layout/             header and footer
+    home/               homepage sections
+    layout/             announcement, header, navigation, footer
+    shared/             links and the not-yet-open state
     ui/                 reusable controls
-  config/               site facts and the route contract
+  config/               site facts, discovery themes, route contract
   features/             product modules, added per phase
   lib/
     env.ts              public environment validation
@@ -45,15 +64,16 @@ src/
   types/database.ts     generated database types
   validation/           Zod schemas
   proxy.ts              session refresh before rendering
-public/brand/           logo served to the app
+public/brand/           logo, mark, and the homepage drawing
 supabase/               CLI config and future migrations
 docs/                   architecture, design, standards, roadmap
+.github/workflows/      CI
 Products/               source photography, not a catalogue
 ```
 
 ## Routing
 
-Public, authentication, customer, business, and admin paths are listed in `src/config/routes.ts`. Only `/` is implemented. Any other path renders `not-found`, which states that the page is not in this release.
+Public, authentication, customer, business, and admin paths are listed in `src/config/routes.ts`. A route is linked only when `implemented` is true. `primaryNavigation()` is the header list.
 
 Protected areas are not gated yet because those pages do not exist. When they do, the server must check the user with `getUser()` and row-level security, not with a client-side flag.
 
@@ -68,7 +88,7 @@ Required public variables, validated in `src/lib/env.ts`:
 
 The legacy anon key is not used. `.env.example` names the variables. `.env.local` is gitignored and holds the local values.
 
-`src/proxy.ts` calls `auth.getUser()` when those variables are present so a later session cookie stays fresh. If they are missing, the proxy continues and the foundation page still renders. A Supabase call made without them throws a clear error instead of failing silently.
+`src/proxy.ts` calls `auth.getUser()` when the public variables are present so a later session cookie stays fresh. A missing session is the normal state of a public visitor and is not logged as a failure. If the variables are missing, the proxy continues and the page still renders. If the auth request fails because the network or the auth host is unavailable, the error is logged and the public page still renders. Other thrown errors propagate. A Supabase call made without the variables throws a clear error instead of failing silently.
 
 ### Types and migrations
 
@@ -107,4 +127,4 @@ Storage buckets for product images come with the catalogue, not before there are
 
 ## What this phase does not include
 
-Shop, accounts, dashboards, checkout, payments, networking, and administration screens are not implemented. Phase 02 has not been started.
+The public website, navigation, and homepage exist. Catalogue data, accounts, dashboards, checkout, payments, networking, and administration screens are not implemented.

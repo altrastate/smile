@@ -1,8 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnv, hasPublicEnv } from "@/lib/env";
+import { toAppError } from "@/lib/errors";
 import type { Database } from "@/types/database";
 
+function isAuthUnavailable(error: unknown) {
+  const { message } = toAppError(error);
+  return /fetch|network|ECONN|ENOTFOUND|ETIMEDOUT|timeout|aborted|socket/i.test(message);
+}
+
+/**
+ * Refreshes the Supabase session cookie.
+ * A public page still renders when the auth service cannot be reached.
+ * Missing configuration returns before any request. Other thrown errors propagate.
+ */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -32,6 +43,17 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  try {
+    const { error } = await supabase.auth.getUser();
+    if (error && !/auth session missing/i.test(error.message)) {
+      console.error("Supabase auth refresh was declined:", error.message);
+    }
+  } catch (error) {
+    if (!isAuthUnavailable(error)) {
+      throw error;
+    }
+    console.error("Supabase auth refresh is unavailable:", toAppError(error).message);
+  }
+
   return response;
 }

@@ -13,16 +13,16 @@ export type AppRoute = {
  * Do not link to a route while implemented is false.
  */
 export const appRoutes = [
-  { path: "/", label: "Foundation", group: "public", implemented: true },
-  { path: "/shop", label: "Shop", group: "public", implemented: false },
+  { path: "/", label: "Home", group: "public", implemented: true },
+  { path: "/shop", label: "Shop", group: "public", implemented: true },
   { path: "/shop/[slug]", label: "Product", group: "public", implemented: false },
-  { path: "/categories", label: "Categories", group: "public", implemented: false },
+  { path: "/categories", label: "Categories", group: "public", implemented: true },
   { path: "/categories/[slug]", label: "Category", group: "public", implemented: false },
-  { path: "/businesses", label: "Businesses", group: "public", implemented: false },
+  { path: "/businesses", label: "Businesses", group: "public", implemented: true },
   { path: "/businesses/[slug]", label: "Business", group: "public", implemented: false },
-  { path: "/services", label: "Services", group: "public", implemented: false },
-  { path: "/about", label: "About", group: "public", implemented: false },
-  { path: "/contact", label: "Contact", group: "public", implemented: false },
+  { path: "/services", label: "Services", group: "public", implemented: true },
+  { path: "/about", label: "About", group: "public", implemented: true },
+  { path: "/contact", label: "Contact", group: "public", implemented: true },
   { path: "/auth/login", label: "Log in", group: "auth", implemented: false },
   { path: "/auth/register", label: "Register", group: "auth", implemented: false },
   { path: "/auth/forgot-password", label: "Forgot password", group: "auth", implemented: false },
@@ -42,6 +42,18 @@ export const appRoutes = [
   { path: "/admin/settings", label: "Admin settings", group: "admin", implemented: false },
 ] as const satisfies readonly AppRoute[];
 
+const primaryPaths = ["/", "/shop", "/categories", "/businesses", "/services", "/about"] as const;
+
 export function implementedRoutes() {
   return appRoutes.filter((route) => route.implemented);
+}
+
+export function primaryNavigation() {
+  return primaryPaths.map((path) => {
+    const route = appRoutes.find((item) => item.path === path);
+    if (!route?.implemented) {
+      throw new Error(`Primary navigation includes an unimplemented route: ${path}`);
+    }
+    return route;
+  });
 }

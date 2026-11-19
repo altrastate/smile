@@ -80,3 +80,20 @@ The workspace is an untracked folder inside a Git repository rooted above this p
 4. Implement the Smile visual system in CSS tokens and reusable controls.
 5. Leave future marketplace routes unimplemented instead of filling them with placeholder screens.
 6. Give the project its own Git repository before the first commit. That step needs a deliberate decision and was not done in this phase.
+
+## Resolution status, recorded in Phase 02
+
+This section does not change the audit above. It records what happened afterwards.
+
+| Observation | Status |
+| --- | --- |
+| No application | Resolved in Phase 01. The Next.js application is the public site as of Phase 02. |
+| Empty Supabase project | Unchanged. No tables or migrations have been added. |
+| Logo on a black background | Resolved after Phase 01. `public/brand/logo.svg` and `public/brand/mark.svg` are transparent. |
+| Product photographs are not catalogue records | Still true. They are not shown on the site. |
+| The folder was not its own Git repository | Resolved after Phase 01. The repository is https://github.com/nutracueticals/Smile-Site on `main`. |
+| No CI | Resolved in Phase 02. `.github/workflows/ci.yml` runs typecheck, lint, and the production build on Node.js 22. |
+| Node engines were broader than Next.js requires | Resolved in Phase 02. `package.json` now says `>=20.9.0`, which is the engines range of Next.js 16.4.6. |
+| Public pages depended on a successful auth refresh | Resolved in Phase 02. A missing session, a missing environment, or an unreachable auth host does not take the public page down. Other thrown errors still propagate. |
+
+Remaining limitations: there is still no catalogue, no account, no verified public contact channel, and no product tables.

@@ -25,6 +25,13 @@ export const metadata: Metadata = {
   },
   description: `${site.description} Developed by ${site.developer}.`,
   icons: { icon: "/brand/mark.svg" },
+  openGraph: {
+    title: site.name,
+    description: site.description,
+    siteName: site.name,
+    type: "website",
+    locale: "en",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

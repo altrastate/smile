@@ -1,12 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AccountNotice } from "@/components/layout/account-notice";
+import { AnnouncementBar } from "@/components/layout/announcement-bar";
+import { DesktopNav } from "@/components/layout/desktop-nav";
+import { MobileNav } from "@/components/layout/mobile-nav";
+import { SearchDialog } from "@/components/layout/search-dialog";
 import { site } from "@/config/site";
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-beige-300">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-4">
-        <Link href="/" className="flex items-center gap-4">
+    <header className="border-b border-beige-300 bg-ivory-50">
+      <AnnouncementBar />
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-5 py-3">
+        <Link href="/" className="flex min-w-0 basis-full items-center gap-3 sm:basis-auto sm:flex-1">
           <Image
             src="/brand/mark.svg"
             alt=""
@@ -14,13 +20,21 @@ export function SiteHeader() {
             height={270}
             priority
             unoptimized
-            className="h-16 w-auto"
+            className="h-12 w-auto shrink-0"
           />
-          <span>
-            <span className="block font-serif text-2xl leading-none text-forest-900">{site.name}</span>
-            <span className="mt-1 block text-sm text-charcoal-700">{site.market}</span>
+          <span className="min-w-0">
+            <span className="block font-serif text-lg leading-tight text-forest-900 sm:text-2xl">{site.name}</span>
+            <span className="mt-1 hidden text-sm text-charcoal-700 sm:block">{site.market}</span>
           </span>
         </Link>
+        <DesktopNav />
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <SearchDialog />
+          <span className="hidden lg:inline-flex">
+            <AccountNotice />
+          </span>
+          <MobileNav />
+        </div>
       </div>
     </header>
   );
