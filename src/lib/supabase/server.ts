@@ -3,13 +3,13 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getPublicEnv } from "@/lib/env";
-import type { AppDatabase } from "@/types/phase04";
+import type { Phase05Database } from "@/types/phase05";
 
 export async function createClient() {
   const env = getPublicEnv();
   const cookieStore = await cookies();
 
-  return createServerClient<AppDatabase>(
+  return createServerClient<Phase05Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {

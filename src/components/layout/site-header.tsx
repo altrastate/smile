@@ -13,9 +13,14 @@ export async function SiteHeader() {
   const accountHref = user ? "/account" : "/login";
   const accountLabel = user ? "Account" : "Log in";
   let review = false;
+  let workspace = false;
   if (user && supabase) {
     const roles = await supabase.from("user_roles").select("role").eq("user_id", user.id);
     review = (roles.data ?? []).some((row) => row.role === "reviewer" || row.role === "admin");
+    const businesses = await supabase.rpc("producer_workspaces");
+    workspace = (businesses.data ?? []).some(
+      (row) => row.business_kind === "producer" && row.approval_status === "approved",
+    );
   }
 
   return (
@@ -48,6 +53,11 @@ export async function SiteHeader() {
           >
             <SearchDialog />
           </Suspense>
+          {workspace ? (
+            <Link href="/dashboard" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 lg:inline-flex">
+              Workspace
+            </Link>
+          ) : null}
           {review ? (
             <Link href="/review" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 lg:inline-flex">
               Review
@@ -59,7 +69,7 @@ export async function SiteHeader() {
           >
             {accountLabel}
           </Link>
-          <MobileNav accountHref={accountHref} accountLabel={accountLabel} review={review} />
+          <MobileNav accountHref={accountHref} accountLabel={accountLabel} review={review} workspace={workspace} />
         </div>
       </div>
     </header>

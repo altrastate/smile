@@ -11,10 +11,12 @@ export function MobileNav({
   accountHref,
   accountLabel,
   review,
+  workspace,
 }: {
   accountHref: string;
   accountLabel: string;
   review: boolean;
+  workspace: boolean;
 }) {
   const pathname = usePathname();
   const items = primaryNavigation();
@@ -48,6 +50,11 @@ export function MobileNav({
             })}
           </ul>
           <div className="mt-6 border-t border-beige-300 pt-4">
+            {workspace ? (
+              <Link href="/dashboard" onClick={() => setOpen(false)} className="flex min-h-11 items-center px-1 text-base font-semibold text-forest-800">
+                Workspace
+              </Link>
+            ) : null}
             {review ? (
               <Link href="/review" onClick={() => setOpen(false)} className="flex min-h-11 items-center px-1 text-base font-semibold text-forest-800">
                 Review

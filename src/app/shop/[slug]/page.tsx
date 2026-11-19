@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -77,7 +78,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div>
           <p className="text-sm font-semibold text-botanical-700">{product.categoryName}</p>
           <h1 className="mt-3 font-serif text-4xl text-forest-900 md:text-5xl">{product.name}</h1>
-          <p className="mt-4 text-base text-charcoal-700">{product.businessName}</p>
+          <p className="mt-4 text-base text-charcoal-700">
+            <Link href={`/businesses/${product.businessSlug}`} className="font-semibold text-forest-800">
+              {product.businessName}
+            </Link>
+          </p>
           {product.summary ? <p className="mt-6 text-lg leading-relaxed text-charcoal-700">{product.summary}</p> : null}
           {product.description ? (
             <div className="mt-6">

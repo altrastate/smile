@@ -36,6 +36,7 @@ export default async function AccountPage({
       <ul className="mt-8 flex max-w-xl flex-col gap-3 text-base font-semibold text-forest-800">
         <li><Link href="/account/profile">Profile</Link></li>
         <li><Link href="/account/applications">Business applications</Link></li>
+        <li><Link href="/dashboard">Producer workspace</Link></li>
         <li><Link href="/business/apply">Apply for a business</Link></li>
       </ul>
       <form action={logoutAction} className="mt-8">

@@ -99,7 +99,7 @@ The legacy anon key is not used. `.env.example` names the variables. `.env.local
 
 ### Types and migrations
 
-`src/types/database.ts` is generated from the linked database and matches the applied catalogue schema. `src/types/phase04.ts` is a hand-written supplement for the identity migration, which has not been applied. Do not treat that file as generated. After the identity migration is applied, regenerate:
+`src/types/database.ts` is generated from the linked database and matches the applied catalogue schema. `src/types/phase04.ts` and `src/types/phase05.ts` are hand-written supplements for migrations that have not been applied. Do not treat those files as generated. After the migrations are applied, regenerate:
 
 ```bash
 supabase gen types typescript --linked --schema public > src/types/database.ts
@@ -125,10 +125,12 @@ The migration creates:
 | --- | --- | --- |
 | `businesses` | Public name, slug, and approval status (`pending`, `approved`, `rejected`, `suspended`) so a product can be attributed | Phase 04 adds `created_by` in the unapplied identity migration. The public catalogue still cannot read that column |
 | `categories` | Name, slug, description, optional parent, display order, active flag. Six root categories are inserted | No separate category admin |
-| `products` | Catalogue record belonging to one business and one category, with publication status `draft`, `published`, or `archived` | Producer editing (Phase 05), variants and prices (Phase 07) |
-| `product_images` | Storage path, alt text, order, and one primary image | Upload interface (Phase 05) |
+| `products` | Catalogue record belonging to one business and one category, with publication status `draft`, `published`, or `archived` | Variants and prices (Phase 07) |
+| `product_images` | Storage path, alt text, order, and one primary image | Phase 05 adds the producer upload path in an unapplied migration |
 
-Phase 04 adds `supabase/migrations/20261119113107_identity_and_applications.sql`. Phase 04.1 adds `20261119124504_application_history_guards.sql` and `20261119124532_application_transactions.sql`. None of these three migrations has been applied. They do not replace the catalogue migration. Approval still does not update `products`.
+Phase 04 adds `supabase/migrations/20261119113107_identity_and_applications.sql`. Phase 04.1 adds `20261119124504_application_history_guards.sql` and `20261119124532_application_transactions.sql`. Phase 05 adds `20261119131559_producer_storefront.sql`. None of these four migrations has been applied. They do not replace the catalogue migration. Approval still does not update `products`.
+
+An approved producer manages listings through database functions. Those functions create drafts, edit listing text, and change publication among `draft`, `published`, and `archived`. Unpublishing returns a listing to `draft` and keeps `published_at`, so the workspace can show it as unpublished. Publishing does not change `businesses.approval_status`. Direct insert, update, and delete on `products` and `product_images` stay revoked. Storefront text is added to `businesses`. Contact email and telephone are revoked from anonymous and authenticated table reads and are returned only by `producer_workspaces()` to the signed-in member. `src/types/phase05.ts` is a hand-written supplement, not generated output.
 
 Creating, saving, and deciding an application each go through one database function, so the business, application, categories, membership, note, and history row change together or not at all. The privileged functions live in `private`. `public` wrappers are security invoker because the Data API only exposes `public`. Direct inserts and updates on businesses, applications, categories, memberships, events, and internal notes are revoked from `authenticated`. Document uploads still use storage and a document row, with a recovery row if the file cannot be removed after a failed insert.
 

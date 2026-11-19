@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/features/catalogue/catalogue.test.ts src/features/auth/validation.test.ts src/features/applications/transitions.test.ts src/features/applications/policies.test.ts src/features/applications/documents.test.ts"
+    "test": "tsx --test src/features/catalogue/catalogue.test.ts src/features/auth/validation.test.ts src/features/applications/transitions.test.ts src/features/applications/policies.test.ts src/features/applications/documents.test.ts src/features/dashboard/dashboard.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

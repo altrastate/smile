@@ -412,3 +412,113 @@ export async function getProduct(slug: string): Promise<ProductDetailResult> {
     return unavailable(error);
   }
 }
+
+const publicBusinessSchema = z.object({
+  id: z.uuid(),
+  display_name: z.string(),
+  slug: slugSchema,
+  description: z.string().optional(),
+  country_code: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  district: z.string().nullable().optional(),
+  website: z.string().nullable().optional(),
+});
+
+export type PublicStorefront = {
+  name: string;
+  slug: string;
+  description: string | null;
+  location: string | null;
+  website: string | null;
+  products: CatalogueProduct[];
+  productTotal: number;
+};
+
+export type PublicStorefrontResult =
+  | { status: "ok"; business: PublicStorefront | null }
+  | { status: "unavailable"; message: string };
+
+export async function getPublicStorefront(slug: string): Promise<PublicStorefrontResult> {
+  if (!slugSchema.safeParse(slug).success) {
+    return { status: "ok", business: null };
+  }
+  if (!hasPublicEnv()) {
+    return { status: "unavailable", message: "The catalogue database is not configured." };
+  }
+  try {
+    const supabase = await createClient();
+    const detailed = await supabase
+      .from("businesses")
+      .select("id, display_name, slug, description, country_code, city, district, website")
+      .eq("slug", slug)
+      .eq("approval_status", "approved")
+      .maybeSingle();
+    const fallback =
+      detailed.error && /column .* does not exist/i.test(detailed.error.message)
+        ? await supabase
+            .from("businesses")
+            .select("id, display_name, slug")
+            .eq("slug", slug)
+            .eq("approval_status", "approved")
+            .maybeSingle()
+        : detailed;
+    if (fallback.error) {
+      return unavailable(fallback.error);
+    }
+    if (!fallback.data) {
+      return { status: "ok", business: null };
+    }
+    const parsed = publicBusinessSchema.safeParse(fallback.data);
+    if (!parsed.success) {
+      return unavailable(parsed.error);
+    }
+    const listing = await supabase
+      .from("products")
+      .select(listSelect, { count: "exact" })
+      .eq("publication_status", "published")
+      .eq("categories.is_active", true)
+      .eq("businesses.approval_status", "approved")
+      .eq("businesses.slug", slug)
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("id", { ascending: true })
+      .range(0, 23);
+    if (listing.error) {
+      return unavailable(listing.error);
+    }
+    const products = z.array(listedProductSchema).safeParse(listing.data ?? []);
+    if (!products.success) {
+      return unavailable(products.error);
+    }
+    const cards = await Promise.all(
+      products.data.map(async (product) => {
+        const image = await signImage(supabase, primaryImage(product.product_images));
+        return {
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          summary: product.short_description,
+          categoryName: product.categories.name,
+          categorySlug: product.categories.slug,
+          businessName: product.businesses.display_name,
+          businessSlug: product.businesses.slug,
+          image,
+        };
+      }),
+    );
+    const location = [parsed.data.city, parsed.data.district, parsed.data.country_code].filter(Boolean).join(", ");
+    return {
+      status: "ok",
+      business: {
+        name: parsed.data.display_name,
+        slug: parsed.data.slug,
+        description: parsed.data.description?.trim() ? parsed.data.description : null,
+        location: location || null,
+        website: parsed.data.website ?? null,
+        products: cards,
+        productTotal: listing.count ?? cards.length,
+      },
+    };
+  } catch (error) {
+    return unavailable(error);
+  }
+}
