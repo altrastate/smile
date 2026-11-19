@@ -165,7 +165,11 @@ Phase 05 and later are not started. Not implemented: producer and manufacturer d
 
 ## 17. Commit
 
-The implementation commit message is `Implement Phase 04 authentication and business approval workflows`. The hash is added to this section after that commit exists, because the hash is not known while the file is being written.
+Implementation commit: `9c1d72c35f2d2b720c3722fdbe900ce65db285f7`
+
+Message: `Implement Phase 04 authentication and business approval workflows`
+
+https://github.com/nutracueticals/Smile-Site/commit/9c1d72c35f2d2b720c3722fdbe900ce65db285f7
 
 ## Verdict
 
