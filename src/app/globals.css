@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/*
+  Smile tokens.
+  Text on ivory uses charcoal-900 or forest-800.
+  botanical-600 is for large type and fills, not small text.
+*/
+@theme inline {
+  --font-sans: var(--font-source-sans), "Segoe UI", sans-serif;
+  --font-serif: var(--font-fraunces), "Palatino Linotype", Palatino, serif;
+
+  --color-forest-950: #0e2419;
+  --color-forest-900: #13281f;
+  --color-forest-800: #1b4332;
+  --color-forest-700: #245c40;
+  --color-botanical-700: #1f6b3a;
+  --color-botanical-600: #2f7d4a;
+  --color-ivory-50: #f7f4ee;
+  --color-ivory-100: #f1ebe1;
+  --color-beige-200: #e6dccb;
+  --color-beige-300: #d4c6b0;
+  --color-charcoal-900: #1c1916;
+  --color-charcoal-700: #3f3a34;
+  --color-charcoal-500: #6b645c;
+  --color-clay-700: #7a4632;
+  --color-danger-700: #8b2e2e;
+  --color-warning-800: #7a4e10;
+
+  --shadow-soft: 0 1px 2px rgb(28 25 22 / 0.06), 0 12px 32px rgb(28 25 22 / 0.05);
+  --radius-sm: 2px;
+}
+
+@layer base {
+  html {
+    background: var(--color-ivory-50);
+  }
+
+  body {
+    background: var(--color-ivory-50);
+    color: var(--color-charcoal-900);
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-botanical-700);
+    outline-offset: 3px;
+  }
+}
