@@ -10,7 +10,13 @@ Give an approved producer a workspace where they can maintain the public storefr
 
 ## 3. Final implementation commit
 
-Recorded after the implementation commit is created. The message is `Implement Phase 05 producer dashboard and storefront management`.
+Implementation commit: `df9408982fd1856713cbe4bf64210cba5105ac9d`
+
+https://github.com/nutracueticals/Smile-Site/commit/df9408982fd1856713cbe4bf64210cba5105ac9d
+
+Message: `Implement Phase 05 producer dashboard and storefront management`
+
+The listing pages under `src/app/dashboard/products` were left out of that commit because `.gitignore` used `Products/`, and Windows treats that as the same as `products/`. The ignore is now anchored to `/Products/`, and the listing pages are committed with it.
 
 ## 4. Architecture changes
 

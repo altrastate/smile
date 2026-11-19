@@ -14,4 +14,5 @@ supabase/.temp
 supabase/.branches
 
 # Source photography stays local until it is managed from the admin dashboard.
-Products/
+# Anchored to the repository root so it does not hide src/app/dashboard/products.
+/Products/
