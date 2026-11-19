@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <Container as="section" className="py-16 md:py-20">
+    <Container as="section" className="section-space">
       <p className="text-sm font-semibold tracking-[0.16em] text-botanical-700 uppercase">{site.market}</p>
-      <h1 className="mt-4 max-w-3xl font-serif text-4xl text-forest-900 md:text-5xl">About {site.name}</h1>
+      <h1 className="display mt-4 max-w-3xl text-forest-900">About {site.name}</h1>
       <div className="mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-charcoal-700">
         <p>
           {site.name} is a marketplace for natural and nutraceutical products. It is being built to connect
@@ -26,8 +26,9 @@ export default function AboutPage() {
         </p>
         <p>{site.tagline}.</p>
         <p>
-          The shop lists published products from approved businesses. No products are listed yet. Accounts
-          and business applications are open. Checkout is not.
+          The shop shows the photographed Smile house range, and published products from approved businesses
+          when those exist. Pack details come from the labels. Prices, stock, and checkout are not part of
+          this showing. Accounts and business applications are open.
         </p>
         <p>Developed by {site.developer}.</p>
       </div>

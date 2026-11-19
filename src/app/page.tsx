@@ -3,6 +3,7 @@ import { BusinessParticipation } from "@/components/home/business-participation"
 import { CategoryDiscovery } from "@/components/home/category-discovery";
 import { ClosingCta } from "@/components/home/closing-cta";
 import { EcosystemSection } from "@/components/home/ecosystem-section";
+import { FeaturedRange } from "@/components/home/featured-range";
 import { HeroSection } from "@/components/home/hero-section";
 import { MarketplaceIntroduction } from "@/components/home/marketplace-introduction";
 import { ProducerSection } from "@/components/home/producer-section";
@@ -27,6 +28,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <FeaturedRange />
       <MarketplaceIntroduction />
       <CategoryDiscovery />
       <ProducerSection />

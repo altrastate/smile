@@ -15,9 +15,9 @@ export default async function CategoriesPage() {
   const result = await listCategories();
 
   return (
-    <Container as="section" className="py-12 md:py-16">
+    <Container as="section" className="section-space">
       <p className="text-sm font-semibold tracking-[0.16em] text-botanical-700 uppercase">Catalogue</p>
-      <h1 className="mt-3 font-serif text-4xl text-forest-900 md:text-5xl">Categories</h1>
+      <h1 className="display mt-3 text-forest-900">Categories</h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-charcoal-700">
         These are the categories products can belong to. A category page shows published products in that category.
       </p>
@@ -27,13 +27,13 @@ export default async function CategoriesPage() {
         ) : result.categories.length === 0 ? (
           <p className="text-base text-charcoal-700">No active categories are available.</p>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="reveal-children grid grid-cols-1 gap-4 min-[540px]:grid-cols-2 min-[1100px]:grid-cols-3">
             {result.categories
               .filter((category) => category.parentId === null)
               .map((category) => {
                 const children = result.categories.filter((item) => item.parentId === category.id);
                 return (
-                  <li key={category.id} className="border border-beige-300 bg-ivory-50">
+                  <li key={category.id} className="lift border border-beige-300 bg-ivory-50">
                     <Link href={`/categories/${category.slug}`} className="block min-h-11 p-5">
                       <h2 className="font-serif text-2xl text-forest-900">{category.name}</h2>
                       <p className="mt-3 text-base leading-relaxed text-charcoal-700">{category.description}</p>

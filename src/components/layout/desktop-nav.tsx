@@ -10,7 +10,7 @@ export function DesktopNav() {
   const items = primaryNavigation();
 
   return (
-    <nav aria-label="Primary" className="hidden lg:block">
+    <nav aria-label="Primary" className="hidden min-[1180px]:block">
       <ul className="flex items-center gap-1">
         {items.map((item) => {
           const current = pathname === item.path;

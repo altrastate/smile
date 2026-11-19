@@ -24,10 +24,10 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-beige-300 bg-ivory-50">
+    <header className="sticky top-0 z-40 border-b border-beige-300/80 bg-ivory-50/92 backdrop-blur-md supports-[padding:max(0px)]:pt-[env(safe-area-inset-top)]">
       <AnnouncementBar />
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-5 py-3">
-        <Link href="/" className="flex min-w-0 basis-full items-center gap-3 sm:basis-auto sm:flex-1">
+      <div className="mx-auto flex w-full max-w-[76rem] items-center gap-2 px-[clamp(1rem,4vw,2.25rem)] py-2 sm:gap-3 sm:py-3">
+        <Link href="/" className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 min-[1180px]:flex-none">
           <Image
             src="/brand/mark.svg"
             alt=""
@@ -35,11 +35,13 @@ export async function SiteHeader() {
             height={270}
             priority
             unoptimized
-            className="h-12 w-auto shrink-0"
+            className="h-9 w-auto shrink-0 sm:h-11"
           />
           <span className="min-w-0">
-            <span className="block font-serif text-lg leading-tight text-forest-900 sm:text-2xl">{site.name}</span>
-            <span className="mt-1 hidden text-sm text-charcoal-700 sm:block">{site.market}</span>
+            <span className="block truncate font-serif text-[1.05rem] leading-none text-forest-900 sm:text-[1.65rem]">
+              {site.name}
+            </span>
+            <span className="mt-1 hidden text-sm text-charcoal-700 md:block">{site.market}</span>
           </span>
         </Link>
         <DesktopNav />
@@ -54,18 +56,18 @@ export async function SiteHeader() {
             <SearchDialog />
           </Suspense>
           {workspace ? (
-            <Link href="/dashboard" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 lg:inline-flex">
+            <Link href="/dashboard" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 min-[1180px]:inline-flex">
               Workspace
             </Link>
           ) : null}
           {review ? (
-            <Link href="/review" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 lg:inline-flex">
+            <Link href="/review" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 min-[1180px]:inline-flex">
               Review
             </Link>
           ) : null}
           <Link
             href={accountHref}
-            className="hidden min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800 lg:inline-flex"
+            className="hidden min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800 min-[1180px]:inline-flex"
           >
             {accountLabel}
           </Link>

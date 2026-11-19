@@ -4,7 +4,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   allowedDevOrigins: ["127.0.0.1"],
   images: {
-    localPatterns: [{ pathname: "/brand/**" }],
+    qualities: [75, 90],
+    formats: ["image/avif", "image/webp"],
+    localPatterns: [{ pathname: "/brand/**" }, { pathname: "/catalogue/**" }],
     remotePatterns: [
       {
         protocol: "https",

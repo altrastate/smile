@@ -5,6 +5,8 @@ import { Container } from "@/components/layout/container";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ProductGrid } from "@/features/catalogue/components";
 import { CatalogueUnavailable } from "@/features/catalogue/components";
+import { site } from "@/config/site";
+import { showcaseBusiness } from "@/features/catalogue/showcase";
 import { getPublicStorefront } from "@/features/catalogue/queries";
 
 export const dynamic = "force-dynamic";
@@ -44,10 +46,20 @@ export default async function PublicStorefrontPage({ params }: StorefrontPagePro
   const business = result.business;
 
   return (
-    <Container as="section" className="py-12 md:py-16">
+    <Container as="section" className="section-space">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: business.name }]} />
-      <h1 className="mt-8 font-serif text-4xl text-forest-900 md:text-5xl">{business.name}</h1>
+      <h1 className="display mt-8 text-forest-900">{business.name}</h1>
       {business.location ? <p className="mt-3 text-charcoal-700">{business.location}</p> : null}
+      {business.slug === showcaseBusiness.slug ? (
+        <p className="mt-4 flex flex-col gap-2 text-base sm:flex-row sm:gap-6">
+          <a href={site.phoneHref} className="font-semibold text-forest-800">
+            {site.phone}
+          </a>
+          <a href={`mailto:${site.email}`} className="font-semibold text-forest-800">
+            {site.email}
+          </a>
+        </p>
+      ) : null}
       {business.description ? <p className="mt-6 max-w-3xl text-lg text-charcoal-900">{business.description}</p> : null}
       {business.website ? (
         <p className="mt-4">

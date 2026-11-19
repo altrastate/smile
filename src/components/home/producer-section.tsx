@@ -13,7 +13,7 @@ const intentions = [
 
 export function ProducerSection() {
   return (
-    <Container as="section" className="border-t border-beige-300 py-16">
+    <Container as="section" className="reveal section-space border-t border-beige-300">
       <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
         <SectionHeading
           eyebrow="Producers and manufacturers"

@@ -4,13 +4,13 @@ import { ecosystemRoles } from "@/config/discovery";
 
 export function EcosystemSection() {
   return (
-    <Container as="section" className="border-t border-beige-300 py-16">
+    <Container as="section" className="reveal section-space border-t border-beige-300">
       <SectionHeading
         eyebrow="The ecosystem"
         title="More than a shop window"
         description="Each role depends on the others. Smile is the shared place where those relationships can be visible."
       />
-      <ol className="mt-10 grid gap-px bg-beige-300 sm:grid-cols-2 lg:grid-cols-3">
+      <ol className="mt-10 grid grid-cols-1 gap-px bg-beige-300 min-[540px]:grid-cols-2 min-[1100px]:grid-cols-3">
         {ecosystemRoles.map((role, index) => (
           <li key={role.title} className="bg-ivory-50 p-5">
             <p className="text-sm font-semibold text-clay-700">0{index + 1}</p>

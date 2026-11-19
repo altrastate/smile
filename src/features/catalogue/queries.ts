@@ -6,8 +6,28 @@ import { toAppError } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeSearch } from "@/features/catalogue/params";
 import { categoryNamePattern, postgrestSearchOr, productSearch } from "@/features/catalogue/search";
+import { filterShowcase, findShowcase, showcaseBusiness, showcaseProducts } from "@/features/catalogue/showcase";
 
 export const pageSize = 12;
+
+function showcaseStorefront(): PublicStorefront {
+  return {
+    name: showcaseBusiness.name,
+    slug: showcaseBusiness.slug,
+    description: showcaseBusiness.description,
+    location: showcaseBusiness.location,
+    website: null,
+    products: showcaseProducts,
+    productTotal: showcaseProducts.length,
+  };
+}
+
+function catalogueFromShowcase(input: { q?: string; category?: string; sort: "newest" | "name"; page: number }): ProductListResult {
+  const matched = filterShowcase(input);
+  const page = Number.isInteger(input.page) && input.page >= 1 ? input.page : 1;
+  const from = (page - 1) * pageSize;
+  return { status: "ok", products: matched.slice(from, from + pageSize), total: matched.length };
+}
 
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
@@ -254,7 +274,7 @@ export async function listProducts(input: {
   page: number;
 }): Promise<ProductListResult> {
   if (!hasPublicEnv()) {
-    return { status: "unavailable", message: "The catalogue database is not configured." };
+    return catalogueFromShowcase(input);
   }
 
   try {
@@ -315,6 +335,9 @@ export async function listProducts(input: {
       if (recount.error) {
         return unavailable(recount.error);
       }
+      if ((recount.count ?? 0) === 0) {
+        return catalogueFromShowcase(input);
+      }
       return { status: "ok", products: [], total: recount.count ?? 0 };
     }
 
@@ -344,6 +367,9 @@ export async function listProducts(input: {
       }),
     );
 
+    if ((count ?? products.length) === 0) {
+      return catalogueFromShowcase(input);
+    }
     return { status: "ok", products, total: count ?? products.length };
   } catch (error) {
     return unavailable(error);
@@ -355,8 +381,9 @@ export async function getProduct(slug: string): Promise<ProductDetailResult> {
     return { status: "ok", product: null };
   }
 
+  const photographed = findShowcase(slug);
   if (!hasPublicEnv()) {
-    return { status: "unavailable", message: "The catalogue database is not configured." };
+    return photographed ? { status: "ok", product: photographed } : { status: "unavailable", message: "The catalogue database is not configured." };
   }
 
   try {
@@ -375,7 +402,7 @@ export async function getProduct(slug: string): Promise<ProductDetailResult> {
     }
 
     if (!data) {
-      return { status: "ok", product: null };
+      return photographed ? { status: "ok", product: photographed } : { status: "ok", product: null };
     }
 
     const parsed = detailedProductSchema.safeParse(data);
@@ -466,7 +493,7 @@ export async function getPublicStorefront(slug: string): Promise<PublicStorefron
       return unavailable(fallback.error);
     }
     if (!fallback.data) {
-      return { status: "ok", business: null };
+      return slug === showcaseBusiness.slug ? { status: "ok", business: showcaseStorefront() } : { status: "ok", business: null };
     }
     const parsed = publicBusinessSchema.safeParse(fallback.data);
     if (!parsed.success) {

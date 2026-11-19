@@ -13,17 +13,17 @@ export type ProductCardProps = {
 
 export function ProductCard({ name, href, imageSrc, imageAlt, category, business, summary }: ProductCardProps) {
   return (
-    <article className="h-full border border-beige-300 bg-ivory-50">
+    <article className="photo-frame lift h-full overflow-hidden border border-beige-300 bg-ivory-50 shadow-soft">
       <Link href={href} className="flex h-full flex-col">
         {imageSrc ? (
-          <div className="relative aspect-square bg-ivory-100">
+          <div className="relative aspect-[4/5] overflow-hidden bg-ivory-100 sm:aspect-square">
             <Image
               src={imageSrc}
               alt={imageAlt || name}
               fill
-              unoptimized
-              sizes="(min-width: 1024px) 20rem, 100vw"
-              className="object-cover"
+              quality={90}
+              sizes="(min-width: 1100px) 24rem, (min-width: 540px) 50vw, 100vw"
+              className="object-contain p-3 sm:p-4"
             />
           </div>
         ) : (
@@ -34,11 +34,12 @@ export function ProductCard({ name, href, imageSrc, imageAlt, category, business
             <span className="sr-only">{name} has no photograph.</span>
           </div>
         )}
-        <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col gap-2 p-4 sm:p-5">
           {category ? <p className="text-sm font-semibold text-botanical-700">{category}</p> : null}
-          <h2 className="font-serif text-2xl text-forest-900">{name}</h2>
+          <h2 className="font-serif text-[clamp(1.35rem,1.1rem+0.8vw,1.75rem)] leading-tight text-forest-900">{name}</h2>
           {business ? <p className="text-sm text-charcoal-700">{business}</p> : null}
           {summary ? <p className="text-base leading-relaxed text-charcoal-700">{summary}</p> : null}
+          <p className="mt-auto pt-3 text-sm font-semibold text-forest-800">View the pack</p>
         </div>
       </Link>
     </article>

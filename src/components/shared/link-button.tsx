@@ -12,11 +12,19 @@ type LinkButtonProps = {
   href: string;
   children: ReactNode;
   tone?: keyof typeof tones;
+  className?: string;
 };
 
-export function LinkButton({ href, children, tone = "solid" }: LinkButtonProps) {
+export function LinkButton({ href, children, tone = "solid", className }: LinkButtonProps) {
   return (
-    <Link href={href} className={cn("inline-flex min-h-11 items-center px-4 font-semibold", tones[tone])}>
+    <Link
+      href={href}
+      className={cn(
+        "inline-flex min-h-12 items-center justify-center px-5 font-semibold",
+        tones[tone],
+        className,
+      )}
+    >
       {children}
     </Link>
   );

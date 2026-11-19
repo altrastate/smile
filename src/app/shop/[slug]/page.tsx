@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { site } from "@/config/site";
 import { CatalogueUnavailable, ProductPhoto } from "@/features/catalogue/components";
 import { getProduct } from "@/features/catalogue/queries";
 
@@ -56,7 +57,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ].filter((fact) => fact !== null);
 
   return (
-    <Container as="section" className="py-12 md:py-16">
+    <Container as="section" className="section-space">
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -65,8 +66,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           { label: product.name },
         ]}
       />
-      <div className="mt-8 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12">
+        <div className="photo-frame overflow-hidden border border-beige-300 bg-ivory-100 shadow-soft lg:sticky lg:top-28">
           <ProductPhoto name={product.name} src={product.image.src} alt={product.image.alt} />
           {product.images.length > 1 ? (
             <ul className="mt-3 grid grid-cols-4 gap-3">
@@ -80,7 +81,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
         <div>
           <p className="text-sm font-semibold text-botanical-700">{product.categoryName}</p>
-          <h1 className="mt-3 font-serif text-4xl text-forest-900 md:text-5xl">{product.name}</h1>
+          <h1 className="display mt-3 text-forest-900">{product.name}</h1>
           <p className="mt-4 text-base text-charcoal-700">
             <Link href={`/businesses/${product.businessSlug}`} className="font-semibold text-forest-800">
               {product.businessName}
@@ -109,6 +110,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
               ))}
             </dl>
           ) : null}
+          <div className="mt-10 border border-beige-300 bg-ivory-100 p-5">
+            <p className="font-serif text-2xl text-forest-900">Ask the showroom</p>
+            <p className="mt-2 text-base leading-relaxed text-charcoal-700">
+              Prices are not listed on this page. Call or write and name this pack.
+            </p>
+            <div className="mt-4 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2">
+              <a href={site.phoneHref} className="inline-flex min-h-12 items-center justify-center border border-forest-800 bg-forest-800 px-4 text-center font-semibold text-ivory-50">
+                Call {site.phone}
+              </a>
+              <a
+                href={`mailto:${site.email}?subject=${encodeURIComponent(product.name)}`}
+                className="inline-flex min-h-12 items-center justify-center border border-forest-800 bg-ivory-50 px-4 text-center font-semibold text-forest-800"
+              >
+                Email the showroom
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </Container>

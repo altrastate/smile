@@ -5,15 +5,15 @@ import { discoveryThemes } from "@/config/discovery";
 
 export function CategoryDiscovery() {
   return (
-    <Container as="section" id="explore" className="border-t border-beige-300 py-16">
+    <Container as="section" id="explore" className="reveal section-space border-t border-beige-300">
       <SectionHeading
         eyebrow="Discovery"
-        title="What the marketplace will carry"
-        description="These are the catalogue categories. A category lists published products when an approved business has them. Nothing is priced here."
+        title="Browse by what the pack is for"
+        description="Open a category to see the photographed packs that belong there. Prices are not shown."
       />
-      <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-10 grid grid-cols-1 gap-4 min-[540px]:grid-cols-2 min-[1100px]:grid-cols-3">
         {discoveryThemes.map((theme) => (
-          <li key={theme.slug} className="border border-beige-300 bg-ivory-50">
+          <li key={theme.slug} className="lift border border-beige-300 bg-ivory-50">
             <Link href={`/categories/${theme.slug}`} className="block min-h-11 p-5">
               <h3 className="font-serif text-2xl text-forest-900">{theme.title}</h3>
               <p className="mt-3 text-base leading-relaxed text-charcoal-700">{theme.text}</p>

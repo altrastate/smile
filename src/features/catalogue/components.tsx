@@ -24,15 +24,22 @@ export function ProductPhoto({ name, src, alt }: { name: string; src: string | n
   }
 
   return (
-    <div className="relative aspect-square border border-beige-300 bg-ivory-100">
-      <Image src={src} alt={alt || name} fill unoptimized sizes="(min-width: 1024px) 32rem, 100vw" className="object-cover" />
+    <div className="relative aspect-[4/5] border border-beige-300 bg-ivory-100 sm:aspect-square">
+      <Image
+        src={src}
+        alt={alt || name}
+        fill
+        quality={90}
+        sizes="(min-width: 1024px) 42vw, 100vw"
+        className="object-contain p-4 sm:p-6"
+      />
     </div>
   );
 }
 
 export function ProductGrid({ products }: { products: CatalogueProduct[] }) {
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="reveal-children grid grid-cols-1 gap-4 min-[540px]:grid-cols-2 min-[1100px]:grid-cols-3 sm:gap-6">
       {products.map((product) => (
         <li key={product.id}>
           <ProductCard

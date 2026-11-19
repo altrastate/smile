@@ -35,12 +35,12 @@ export default async function ShopPage({
   ]);
 
   return (
-    <Container as="section" className="py-12 md:py-16">
+    <Container as="section" className="section-space">
       <p className="text-sm font-semibold tracking-[0.16em] text-botanical-700 uppercase">Catalogue</p>
-      <h1 className="mt-3 font-serif text-4xl text-forest-900 md:text-5xl">Shop</h1>
+      <h1 className="display mt-3 text-forest-900">Shop</h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-charcoal-700">
-        Published products from approved businesses. A product is listed only after it is published. Prices are not
-        part of this catalogue yet.
+        The house range photographed for Smile Nutraceuticals, plus any listing an approved producer has published.
+        Pack sizes come from the labels. Prices are not shown.
       </p>
       <div className="mt-8">
         <CatalogueToolbar

@@ -4,7 +4,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 
 export function BusinessParticipation() {
   return (
-    <Container as="section" id="participate" className="border-t border-beige-300 py-16">
+    <Container as="section" id="participate" className="reveal section-space border-t border-beige-300">
       <SectionHeading
         eyebrow="Take part"
         title="Apply for a business"

@@ -24,7 +24,7 @@ export function MobileNav({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="inline-flex min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800 lg:hidden">
+      <DialogTrigger className="inline-flex min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800 min-[1180px]:hidden">
         Menu
       </DialogTrigger>
       <DialogContent title="Menu" description="Pages on this site." align="end">

@@ -33,6 +33,7 @@
 @layer base {
   html {
     background: var(--color-ivory-50);
+    scroll-padding-top: 7.25rem;
   }
 
   body {
@@ -40,10 +41,157 @@
     color: var(--color-charcoal-900);
     font-family: var(--font-sans);
     overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  img {
+    max-width: 100%;
   }
 
   :focus-visible {
     outline: 2px solid var(--color-botanical-700);
     outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #1b4332;
+    color: #f7f4ee;
+  }
+}
+
+.display,
+.display-xl {
+  font-family: var(--font-serif);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.display {
+  font-size: clamp(2.15rem, 1.15rem + 3.4vw, 4.5rem);
+}
+
+.display-xl {
+  font-size: clamp(2.65rem, 1.05rem + 6vw, 6.1rem);
+  line-height: 0.98;
+}
+
+.section-space {
+  padding-block: clamp(3.25rem, 7vw, 6rem);
+}
+
+.sheet-overlay {
+  transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .rise {
+    animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .rise-late {
+    animation-delay: 0.12s;
+  }
+
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: settle 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+  }
+
+  .sheet-overlay[data-state="open"] {
+    animation: veil 0.28s ease both;
+  }
+
+  .sheet-drawer[data-state="open"] {
+    animation: sheet 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .photo-frame img {
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .photo-frame:hover img {
+    transform: scale(1.045);
+  }
+
+  .lift {
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.45s ease;
+  }
+
+  .lift:hover {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .rise,
+  .reveal,
+  .reveal-children > *,
+  .sheet-overlay,
+  .sheet-drawer {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: translate3d(0, 1rem, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes veil {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet {
+  from {
+    opacity: 0;
+    transform: translate3d(1.25rem, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
