@@ -26,8 +26,8 @@ export default function AboutPage() {
         </p>
         <p>{site.tagline}.</p>
         <p>
-          The shop lists published products from approved businesses. No products are listed yet. Accounts,
-          applications, and checkout are not open.
+          The shop lists published products from approved businesses. No products are listed yet. Accounts
+          and business applications are open. Checkout is not.
         </p>
         <p>Developed by {site.developer}.</p>
       </div>

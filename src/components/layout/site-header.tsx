@@ -1,14 +1,23 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AccountNotice } from "@/components/layout/account-notice";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { DesktopNav } from "@/components/layout/desktop-nav";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SearchDialog } from "@/components/layout/search-dialog";
 import { site } from "@/config/site";
+import { getSessionUser } from "@/features/auth/session";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const { supabase, user } = await getSessionUser();
+  const accountHref = user ? "/account" : "/login";
+  const accountLabel = user ? "Account" : "Log in";
+  let review = false;
+  if (user) {
+    const roles = await supabase.from("user_roles").select("role").eq("user_id", user.id);
+    review = (roles.data ?? []).some((row) => row.role === "reviewer" || row.role === "admin");
+  }
+
   return (
     <header className="border-b border-beige-300 bg-ivory-50">
       <AnnouncementBar />
@@ -39,12 +48,21 @@ export function SiteHeader() {
           >
             <SearchDialog />
           </Suspense>
-          <span className="hidden lg:inline-flex">
-            <AccountNotice />
-          </span>
-          <MobileNav />
+          {review ? (
+            <Link href="/review" className="hidden min-h-11 items-center px-3 text-sm font-semibold text-forest-800 lg:inline-flex">
+              Review
+            </Link>
+          ) : null}
+          <Link
+            href={accountHref}
+            className="hidden min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800 lg:inline-flex"
+          >
+            {accountLabel}
+          </Link>
+          <MobileNav accountHref={accountHref} accountLabel={accountLabel} review={review} />
         </div>
       </div>
     </header>
   );
 }
+

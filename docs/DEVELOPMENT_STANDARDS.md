@@ -16,7 +16,9 @@
 
 - The browser may use the publishable key only.
 - Server code that acts as the signed-in user uses `src/lib/supabase/server.ts`.
-- Do not read `user_metadata` to make an authorization decision.
+- Do not read `user_metadata` to make an authorization decision. Read `public.user_roles`.
+- Do not insert `reviewer` or `admin` from application code. An operator inserts those rows.
+- Do not add a table in an exposed schema without row-level security and a policy that matches the real rule.
 - Do not add a table in an exposed schema without row-level security and a policy that matches the real rule.
 - Do not commit `.env.local`, service-role keys, or database passwords.
 
@@ -54,6 +56,7 @@ Before a phase is called complete, run:
 ```bash
 npm run typecheck
 npm run lint
+npm test
 npm run build
 ```
 

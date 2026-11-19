@@ -7,17 +7,17 @@ export function BusinessParticipation() {
     <Container as="section" id="participate" className="border-t border-beige-300 py-16">
       <SectionHeading
         eyebrow="Take part"
-        title="Business onboarding comes next"
-        description="Producers, manufacturers, suppliers, distributors, and service providers will be able to apply for an account. Applications are not open on this site yet."
+        title="Apply for a business"
+        description="Producers, manufacturers, suppliers, distributors, retailers, and service providers can apply with an account. Submitting an application does not approve the business or publish any products."
       />
       <ul className="mt-8 max-w-2xl space-y-3 text-base leading-relaxed text-charcoal-700">
-        <li>You will describe the business and the role it plays.</li>
-        <li>An administrator will review the application before the account can trade.</li>
-        <li>There is no registration form in this release.</li>
+        <li>Describe the business and the role it plays.</li>
+        <li>A reviewer decides the application before the business can take part.</li>
+        <li>Create an account, then save a draft and submit it when it is complete.</li>
       </ul>
       <div className="mt-8">
-        <LinkButton href="/contact" tone="outline">
-          See the contact status
+        <LinkButton href="/business/apply" tone="outline">
+          Start an application
         </LinkButton>
       </div>
     </Container>

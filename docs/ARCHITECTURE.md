@@ -25,11 +25,11 @@ Smile Nutraceuticals is a Next.js application with a single Supabase project as 
 
 Sensitive work belongs in Server Components, server functions, or the database. The browser receives the publishable key only.
 
-There is no service-role client in this phase. When one is required, it lives in a `server-only` module, reads `SUPABASE_SERVICE_ROLE_KEY`, and is never imported by a client component. Authorization data belongs in `app_metadata`, not in user-editable `user_metadata`.
+There is no service-role client. Privileged application changes run inside `private` security-definer functions, as the signed-in user. Roles live in `public.user_roles`. Do not read `user_metadata` to grant a role. `reviewer` and `admin` are inserted by an operator, not by registration.
 
 ## Public site
 
-Phase 02 replaced the foundation demonstration with the public site. The homepage is composed from server components under `src/components/home`. The shell is under `src/components/layout`. Search, the mobile menu, and the account notice are the client pieces, because they open and close.
+Phase 02 replaced the foundation demonstration with the public site. The homepage is composed from server components under `src/components/home`. The shell is under `src/components/layout`. Search and the mobile menu are client pieces, because they open and close. The header account link goes to `/account` when a session exists and to `/login` otherwise.
 
 Implemented pages:
 
@@ -39,9 +39,14 @@ Implemented pages:
 | `/about` | About Smile |
 | `/contact` | Contact status. No address, telephone, or email is published |
 | `/shop`, `/categories`, `/businesses`, `/services` | Shop and categories read the catalogue. Businesses and services are still not open |
+| `/register`, `/login`, `/forgot-password`, `/reset-password`, `/verify-email` | Account access. Email links return through `/auth/callback` |
+| `/account`, `/account/profile`, `/account/applications` | Signed-in account, profile, and application list |
+| `/business/apply`, `/business/apply/[applicationId]`, `/business/application-submitted` | Draft, edit, and submission confirmation |
+| `/review`, `/review/applications/[applicationId]` | Reviewer queue and decision. Other signed-in users see access denied |
+| `/terms` | Short account terms for registration |
 | Any other path | `not-found` |
 
-`/account` and the later auth, business, and admin paths stay unimplemented. The header Account control says that accounts are not open. On smaller screens that note is inside the menu.
+Protected pages call `requireUser()` or `requireReviewer()` on the server. A missing session redirects to `/login`. An unconfirmed email redirects to `/verify-email`. The proxy still only refreshes the session cookie. It is not the permission check.
 
 Discovery themes in `src/config/discovery.ts` use the same slugs as the six categories inserted by the catalogue migration. They are not product records. The future path is: a producer publishes a product in Supabase, and the public marketplace reads that record. Do not add a hardcoded product list beside that.
 
@@ -56,12 +61,14 @@ src/
     shared/             links and the not-yet-open state
     ui/                 reusable controls
   config/               site facts, discovery themes, route contract
-  features/             product modules, added per phase
+  features/             auth, applications, review, catalogue
   lib/
     env.ts              public environment validation
     errors.ts           error normalisation
     supabase/           browser client, server client, session proxy
-  types/database.ts     generated database types
+  types/
+    database.ts         generated catalogue types
+    phase04.ts          hand-written identity types, not generated
   validation/           Zod schemas
   proxy.ts              session refresh before rendering
 public/brand/           logo, mark, and the homepage drawing
@@ -75,7 +82,7 @@ Products/               source photography, not a catalogue
 
 Public, authentication, customer, business, and admin paths are listed in `src/config/routes.ts`. A route is linked only when `implemented` is true. `primaryNavigation()` is the header list.
 
-Protected areas are not gated yet because those pages do not exist. When they do, the server must check the user with `getUser()` and row-level security, not with a client-side flag.
+Protected pages check the user with `getUser()` and the database policies. A client-side flag is not the boundary.
 
 ## Supabase
 
@@ -92,11 +99,13 @@ The legacy anon key is not used. `.env.example` names the variables. `.env.local
 
 ### Types and migrations
 
-`src/types/database.ts` matches the current empty `public` schema. After the first real migration, regenerate it:
+`src/types/database.ts` is generated from the linked database and matches the applied catalogue schema. `src/types/phase04.ts` is a hand-written supplement for the identity migration, which has not been applied. Do not treat that file as generated. After the identity migration is applied, regenerate:
 
 ```bash
-supabase gen types typescript --linked > src/types/database.ts
+supabase gen types typescript --linked --schema public > src/types/database.ts
 ```
+
+Then remove the supplement once the generated file includes the new tables.
 
 Create a migration only through the CLI, then edit that file:
 
@@ -114,12 +123,14 @@ The migration creates:
 
 | Table | Role in Phase 03 | Left for a later phase |
 | --- | --- | --- |
-| `businesses` | Public name, slug, and approval status (`pending`, `approved`, `rejected`, `suspended`) so a product can be attributed | Profiles, applications, ownership, and the approval workflow (Phase 04) |
+| `businesses` | Public name, slug, and approval status (`pending`, `approved`, `rejected`, `suspended`) so a product can be attributed | Phase 04 adds `created_by` in the unapplied identity migration. The public catalogue still cannot read that column |
 | `categories` | Name, slug, description, optional parent, display order, active flag. Six root categories are inserted | No separate category admin |
 | `products` | Catalogue record belonging to one business and one category, with publication status `draft`, `published`, or `archived` | Producer editing (Phase 05), variants and prices (Phase 07) |
 | `product_images` | Storage path, alt text, order, and one primary image | Upload interface (Phase 05) |
 
-A product is publicly readable only when it is `published`, its business is `approved`, and its category is active. Business approval does not publish that business's products. Anonymous and authenticated roles can select those rows and cannot insert, update, or delete them. The `product-images` bucket is private. A storage select policy allows a file to be read only when a visible `product_images` row points at it. There is no public upload policy.
+Phase 04 adds `supabase/migrations/20261119113107_identity_and_applications.sql`. It has not been applied. It does not replace the catalogue migration. It adds `profiles`, `user_roles`, `business_applications`, `business_application_categories`, `business_members`, `business_application_documents`, `business_application_events`, and `business_application_internal_notes`, plus a private `business-documents` bucket. Status changes are enforced by `private.enforce_application_change`. Approval sets the business to `approved` and inserts an owner membership. It does not update `products`.
+
+A product is publicly readable only when it is `published`, its business is `approved`, and its category is active. Business approval does not publish that business's products. Anonymous and authenticated roles can select those rows and cannot insert, update, or delete them. The `product-images` bucket is private. A storage select policy allows a file to be read only when a visible `product_images` row points at it. There is no public upload policy. The Phase 03.1 visibility matrix was not executed with fixture rows. Phase 04 does not change that.
 
 Catalogue queries sanitise search text before it reaches Supabase. Product text uses the parameterised text-search filter. A category-name match is included only with category ids that are UUIDs. Listing order ends with the product id. A page past the result set is returned as an empty page.
 
@@ -135,4 +146,4 @@ Regenerate it after a schema change. Do not run `supabase db push` against the l
 
 ## What this phase does not include
 
-The public catalogue reads Supabase. Accounts, dashboards, checkout, payments, networking, and administration screens are not implemented. The catalogue migration has been applied to the linked database. The six categories exist. No products are listed yet.
+The public catalogue reads Supabase. Accounts and business applications are implemented in the application, and their migration is written but not applied. Dashboards, checkout, payments, networking, and the full administration console are not implemented. The catalogue migration has been applied to the linked database. The six categories exist. No products are listed yet.

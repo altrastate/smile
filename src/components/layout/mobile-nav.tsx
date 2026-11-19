@@ -7,7 +7,15 @@ import { primaryNavigation } from "@/config/routes";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-export function MobileNav() {
+export function MobileNav({
+  accountHref,
+  accountLabel,
+  review,
+}: {
+  accountHref: string;
+  accountLabel: string;
+  review: boolean;
+}) {
   const pathname = usePathname();
   const items = primaryNavigation();
   const [open, setOpen] = useState(false);
@@ -40,10 +48,14 @@ export function MobileNav() {
             })}
           </ul>
           <div className="mt-6 border-t border-beige-300 pt-4">
-            <p className="text-sm font-semibold text-forest-800">Account</p>
-            <p className="mt-2 text-sm leading-relaxed text-charcoal-700">
-              Accounts are not open. Sign-in and registration come in a later phase. This is not a sign-in form.
-            </p>
+            {review ? (
+              <Link href="/review" onClick={() => setOpen(false)} className="flex min-h-11 items-center px-1 text-base font-semibold text-forest-800">
+                Review
+              </Link>
+            ) : null}
+            <Link href={accountHref} onClick={() => setOpen(false)} className="flex min-h-11 items-center px-1 text-base font-semibold text-forest-800">
+              {accountLabel}
+            </Link>
           </div>
         </nav>
       </DialogContent>

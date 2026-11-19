@@ -13,8 +13,8 @@ export function TrustSection() {
         <article className="border border-beige-300 p-5">
           <h3 className="font-serif text-2xl text-forest-900">Business accounts</h3>
           <p className="mt-3 text-base leading-relaxed text-charcoal-700">
-            A later phase will ask businesses to apply, and an administrator will decide whether the account
-            can participate. No business has been verified on this site yet.
+            A signed-in person can apply for a business. A reviewer decides whether it is approved.
+            No business has been approved on this site yet.
           </p>
         </article>
         <article className="border border-beige-300 p-5">
