@@ -13,7 +13,7 @@ export async function SiteHeader() {
   const accountHref = user ? "/account" : "/login";
   const accountLabel = user ? "Account" : "Log in";
   let review = false;
-  if (user) {
+  if (user && supabase) {
     const roles = await supabase.from("user_roles").select("role").eq("user_id", user.id);
     review = (roles.data ?? []).some((row) => row.role === "reviewer" || row.role === "admin");
   }

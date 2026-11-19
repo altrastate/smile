@@ -1,9 +1,13 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { hasPublicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export async function getSessionUser() {
+  if (!hasPublicEnv()) {
+    return { supabase: null, user: null };
+  }
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
@@ -14,7 +18,7 @@ export async function getSessionUser() {
 
 export async function requireUser(nextPath = "/account") {
   const session = await getSessionUser();
-  if (!session.user) {
+  if (!session.supabase || !session.user) {
     redirect(`/login?next=${encodeURIComponent(nextPath)}`);
   }
   if (!session.user.email_confirmed_at) {

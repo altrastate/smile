@@ -125,7 +125,7 @@ Not tested:
 
 ## 13. CI result
 
-The Phase 04 workflow does not exist until this commit is pushed. Earlier successful runs remain Phase 02 `https://github.com/nutracueticals/Smile-Site/actions/runs/44499629703` and Phase 03 `https://github.com/nutracueticals/Smile-Site/actions/runs/44510021582`.
+The first Phase 04 run failed at the build: https://github.com/nutracueticals/Smile-Site/actions/runs/44517679668. CI has no public Supabase variables, and the header asked for a session on every page. The header now skips that lookup when the variables are absent. Earlier successful runs remain Phase 02 `https://github.com/nutracueticals/Smile-Site/actions/runs/44499629703` and Phase 03 `https://github.com/nutracueticals/Smile-Site/actions/runs/44510021582`.
 
 Locally, before the commit: `npm run typecheck` passed, `npm run lint` passed, `npm test` passed with 23 tests, and `npm run build` passed on Next.js 16.4.6. The new routes are dynamic.
 
