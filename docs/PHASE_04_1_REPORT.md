@@ -122,7 +122,11 @@ Browser, on the running dev server: `/register` at 360 and 1440, and `/login` at
 
 ## 15. CI result and link
 
-The workflow for this commit does not exist until the commit is pushed. The previous passing run is https://github.com/nutracueticals/Smile-Site/actions/runs/44518687938 for `74fa5bc`.
+Success for `3a18d2086a02c84c1cd2ac7557ba1fcf53e57845`:
+
+https://github.com/nutracueticals/Smile-Site/actions/runs/44528533613
+
+That commit contains the hardening plus the recorded implementation hash. The previous passing run was https://github.com/nutracueticals/Smile-Site/actions/runs/44518687938 for `74fa5bc`.
 
 ## 16. Database environment used
 
