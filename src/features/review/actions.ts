@@ -23,7 +23,7 @@ export async function reviewApplication(formData: FormData) {
     redirect("/review?error=invalid");
   }
 
-  const { supabase, user, reviewer, unavailable } = await requireReviewer();
+  const { supabase, reviewer, unavailable } = await requireReviewer();
   if (unavailable) {
     redirect("/review?error=unavailable");
   }
@@ -40,24 +40,12 @@ export async function reviewApplication(formData: FormData) {
     redirect(`/review/applications/${parsed.data.applicationId}?error=status`);
   }
 
-  if (parsed.data.internalNote) {
-    const note = await supabase.from("business_application_internal_notes").insert({
-      application_id: parsed.data.applicationId,
-      author_id: user.id,
-      body: parsed.data.internalNote,
-    });
-    if (note.error) {
-      redirect(`/review/applications/${parsed.data.applicationId}?error=save`);
-    }
-  }
-
-  const saved = await supabase
-    .from("business_applications")
-    .update({
-      status: parsed.data.status,
-      applicant_visible_message: parsed.data.message || null,
-    })
-    .eq("id", parsed.data.applicationId);
+  const saved = await supabase.rpc("decide_business_application", {
+    p_application_id: parsed.data.applicationId,
+    p_status: parsed.data.status,
+    p_message: parsed.data.message,
+    p_internal_note: parsed.data.internalNote,
+  });
   if (saved.error) {
     redirect(`/review/applications/${parsed.data.applicationId}?error=save`);
   }

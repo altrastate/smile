@@ -110,10 +110,63 @@ type Phase4Tables = {
     body: string;
     created_at: string;
   }>;
+  business_document_orphans: Table<{
+    id: string;
+    storage_path: string;
+    application_id: string | null;
+    reported_by: string;
+    reason: string;
+    created_at: string;
+  }>;
+};
+
+type ApplicationWriteArgs = {
+  p_application_id: string;
+  p_display_name: string;
+  p_slug: string;
+  p_status: Phase4Tables["business_applications"]["Row"]["status"];
+  p_business_kind: Phase4Tables["business_applications"]["Row"]["business_kind"];
+  p_description: string;
+  p_country_code: string;
+  p_district: string;
+  p_city: string;
+  p_address: string;
+  p_website: string;
+  p_business_email: string;
+  p_business_phone: string;
+  p_whatsapp_phone: string;
+  p_registration_standing: Phase4Tables["business_applications"]["Row"]["registration_standing"];
+  p_registration_authority: string;
+  p_registration_number: string;
+  p_tax_identification: string;
+  p_main_offerings: string;
+  p_activities: string;
+  p_regions_served: string;
+  p_operations_summary: string;
+  p_years_operating: number | null;
+  p_applicant_position: string;
+  p_authorised: boolean;
+  p_accuracy: boolean;
+  p_consent: boolean;
+  p_category_ids: string[];
 };
 
 export type AppDatabase = Omit<GeneratedDatabase, "public"> & {
-  public: Omit<GeneratedDatabase["public"], "Tables"> & {
+  public: Omit<GeneratedDatabase["public"], "Tables" | "Functions"> & {
     Tables: GeneratedDatabase["public"]["Tables"] & Phase4Tables;
+    Functions: {
+      start_business_application: { Args: { p_slug: string }; Returns: string };
+      save_business_application: { Args: ApplicationWriteArgs; Returns: undefined };
+      withdraw_business_application: { Args: { p_application_id: string }; Returns: undefined };
+      decide_business_application: {
+        Args: {
+          p_application_id: string;
+          p_status: "under_review" | "information_requested" | "approved" | "rejected";
+          p_message: string;
+          p_internal_note: string;
+        };
+        Returns: undefined;
+      };
+    };
   };
 };

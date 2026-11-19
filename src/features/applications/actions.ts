@@ -4,6 +4,13 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/features/auth/session";
 import { businessSlug } from "@/features/applications/transitions";
+import {
+  detectDocumentType,
+  documentObjectPath,
+  isSafeDocumentPath,
+  maxDocumentBytes,
+  safeDocumentName,
+} from "@/features/applications/documents";
 
 const kinds = ["producer", "manufacturer", "supplier", "distributor", "retailer", "service_provider"] as const;
 const standings = ["registered", "not_registered", "pending", "not_required"] as const;
@@ -37,8 +44,7 @@ const draftSchema = z.object({
   consent: z.boolean(),
 });
 
-const allowedDocuments = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
-const maxDocumentBytes = 10 * 1024 * 1024;
+const allowedBrowserTypes = new Set(["", "application/octet-stream", "application/pdf", "image/jpeg", "image/png", "image/webp"]);
 
 function emptyToNull(value: string) {
   return value.length > 0 ? value : null;
@@ -105,49 +111,25 @@ function applicationFields(data: z.infer<typeof draftSchema>) {
 }
 
 function failurePath(applicationId: string, error: { message: string }) {
-  if (/schema cache|does not exist|could not find the table|relation/i.test(error.message)) {
+  if (/schema cache|does not exist|could not find|function public\.|relation/i.test(error.message)) {
     return `/business/apply/${applicationId}?error=unavailable`;
   }
-  if (/incomplete|declarations|status change|cannot be edited/i.test(error.message)) {
+  if (/incomplete|declarations|status change|cannot be edited|cannot decide/i.test(error.message)) {
     return `/business/apply/${applicationId}?error=incomplete`;
+  }
+  if (/not valid|not active|too many categories/i.test(error.message)) {
+    return `/business/apply/${applicationId}?error=invalid`;
   }
   return `/business/apply/${applicationId}?error=save`;
 }
 
 export async function startApplication() {
-  const { supabase, user } = await requireUser("/business/apply");
-  const slug = businessSlug("New business");
-  const business = await supabase
-    .from("businesses")
-    .insert({
-      display_name: "New business",
-      slug,
-      approval_status: "pending",
-      created_by: user.id,
-    } as never)
-    .select("id")
-    .single();
-
-  if (business.error || !business.data) {
+  const { supabase } = await requireUser("/business/apply");
+  const started = await supabase.rpc("start_business_application", { p_slug: businessSlug("New business") });
+  if (started.error || !started.data) {
     redirect("/business/apply?error=unavailable");
   }
-
-  const application = await supabase
-    .from("business_applications")
-    .insert({
-      applicant_id: user.id,
-      business_id: business.data.id,
-      status: "draft",
-      business_kind: "producer",
-    })
-    .select("id")
-    .single();
-
-  if (application.error || !application.data) {
-    redirect("/business/apply?error=unavailable");
-  }
-
-  redirect(`/business/apply/${application.data.id}`);
+  redirect(`/business/apply/${started.data}`);
 }
 
 export async function saveApplication(formData: FormData) {
@@ -168,10 +150,7 @@ export async function saveApplication(formData: FormData) {
   }
 
   if (intent === "withdraw") {
-    if (!["draft", "submitted", "information_requested"].includes(current.data.status)) {
-      redirect(`/business/apply/${applicationId}?error=closed`);
-    }
-    const withdrawn = await supabase.from("business_applications").update({ status: "withdrawn" }).eq("id", applicationId);
+    const withdrawn = await supabase.rpc("withdraw_business_application", { p_application_id: applicationId });
     if (withdrawn.error) {
       redirect(failurePath(applicationId, withdrawn.error));
     }
@@ -203,33 +182,45 @@ export async function saveApplication(formData: FormData) {
 
   const existingBusiness = await supabase
     .from("businesses")
-    .select("display_name")
+    .select("display_name, slug")
     .eq("id", current.data.business_id)
     .maybeSingle();
-  const business = await supabase
-    .from("businesses")
-    .update({
-      display_name: parsed.data.businessName,
-      ...(existingBusiness.data?.display_name !== parsed.data.businessName
-        ? { slug: businessSlug(parsed.data.businessName) }
-        : {}),
-    })
-    .eq("id", current.data.business_id);
-  if (business.error) {
-    redirect(failurePath(applicationId, business.error));
-  }
-
-  const status = intent === "submit" ? "submitted" : current.data.status;
-  const saved = await supabase.from("business_applications").update({ ...fields, status }).eq("id", applicationId);
+  const slug =
+    existingBusiness.data?.display_name === parsed.data.businessName && existingBusiness.data.slug
+      ? existingBusiness.data.slug
+      : businessSlug(parsed.data.businessName);
+  const saved = await supabase.rpc("save_business_application", {
+    p_application_id: applicationId,
+    p_display_name: parsed.data.businessName,
+    p_slug: slug,
+    p_status: intent === "submit" ? "submitted" : current.data.status,
+    p_business_kind: fields.business_kind,
+    p_description: fields.description,
+    p_country_code: fields.country_code ?? "",
+    p_district: fields.district ?? "",
+    p_city: fields.city ?? "",
+    p_address: fields.address ?? "",
+    p_website: fields.website ?? "",
+    p_business_email: fields.business_email ?? "",
+    p_business_phone: fields.business_phone ?? "",
+    p_whatsapp_phone: fields.whatsapp_phone ?? "",
+    p_registration_standing: fields.registration_standing,
+    p_registration_authority: fields.registration_authority ?? "",
+    p_registration_number: fields.registration_number ?? "",
+    p_tax_identification: fields.tax_identification ?? "",
+    p_main_offerings: fields.main_offerings ?? "",
+    p_activities: fields.activities ?? "",
+    p_regions_served: fields.regions_served ?? "",
+    p_operations_summary: fields.operations_summary ?? "",
+    p_years_operating: fields.years_operating,
+    p_applicant_position: fields.applicant_position ?? "",
+    p_authorised: fields.authorised_declaration,
+    p_accuracy: fields.accuracy_declaration,
+    p_consent: fields.verification_consent,
+    p_category_ids: parsed.data.categoryIds,
+  });
   if (saved.error) {
     redirect(failurePath(applicationId, saved.error));
-  }
-
-  await supabase.from("business_application_categories").delete().eq("application_id", applicationId);
-  if (parsed.data.categoryIds.length > 0) {
-    await supabase.from("business_application_categories").insert(
-      parsed.data.categoryIds.map((categoryId) => ({ application_id: applicationId, category_id: categoryId })),
-    );
   }
 
   if (intent === "submit") {
@@ -241,18 +232,28 @@ export async function saveApplication(formData: FormData) {
 export async function uploadApplicationDocument(formData: FormData) {
   const applicationId = String(formData.get("applicationId") ?? "");
   const file = formData.get("document");
-  if (!(file instanceof File) || !z.string().uuid().safeParse(applicationId).success) {
+  if (!(file instanceof File) || !z.uuid().safeParse(applicationId).success) {
     redirect(`/business/apply/${applicationId}?error=file`);
   }
-  if (!allowedDocuments.has(file.type) || file.size <= 0 || file.size > maxDocumentBytes) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const detected = detectDocumentType(bytes);
+  if (!detected || bytes.byteLength === 0 || bytes.byteLength > maxDocumentBytes) {
+    redirect(`/business/apply/${applicationId}?error=file`);
+  }
+  if (file.type && !allowedBrowserTypes.has(file.type)) {
+    redirect(`/business/apply/${applicationId}?error=file`);
+  }
+  if (file.type && file.type !== "application/octet-stream" && file.type !== detected) {
     redirect(`/business/apply/${applicationId}?error=file`);
   }
 
   const { supabase, user } = await requireUser(`/business/apply/${applicationId}`);
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 80) || "document";
-  const path = `${user.id}/${applicationId}/${crypto.randomUUID()}-${safeName}`;
-  const uploaded = await supabase.storage.from("business-documents").upload(path, file, {
-    contentType: file.type,
+  const path = documentObjectPath(user.id, applicationId, crypto.randomUUID(), detected);
+  if (!isSafeDocumentPath(path)) {
+    redirect(`/business/apply/${applicationId}?error=file`);
+  }
+  const uploaded = await supabase.storage.from("business-documents").upload(path, bytes, {
+    contentType: detected,
     upsert: false,
   });
   if (uploaded.error) {
@@ -262,13 +263,25 @@ export async function uploadApplicationDocument(formData: FormData) {
   const recorded = await supabase.from("business_application_documents").insert({
     application_id: applicationId,
     storage_path: path,
-    file_name: safeName,
-    mime_type: file.type,
-    size_bytes: file.size,
+    file_name: safeDocumentName(file.name),
+    mime_type: detected,
+    size_bytes: bytes.byteLength,
     uploaded_by: user.id,
   });
   if (recorded.error) {
-    await supabase.storage.from("business-documents").remove([path]);
+    const removed = await supabase.storage.from("business-documents").remove([path]);
+    if (removed.error) {
+      const orphan = await supabase.from("business_document_orphans").insert({
+        storage_path: path,
+        application_id: applicationId,
+        reported_by: user.id,
+        reason: "The document row was not saved and the stored object could not be removed.",
+      });
+      if (orphan.error) {
+        console.error("document orphan was not recorded", applicationId);
+      }
+      redirect(`/business/apply/${applicationId}?error=orphan`);
+    }
     redirect(`/business/apply/${applicationId}?error=file`);
   }
   redirect(`/business/apply/${applicationId}?status=uploaded`);

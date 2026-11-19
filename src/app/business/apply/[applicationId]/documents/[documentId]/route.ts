@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isSafeDocumentPath } from "@/features/applications/documents";
 import { requireUser } from "@/features/auth/session";
 
 export async function GET(
@@ -13,7 +14,7 @@ export async function GET(
     .eq("id", documentId)
     .eq("application_id", applicationId)
     .maybeSingle();
-  if (!document.data) {
+  if (!document.data || !isSafeDocumentPath(document.data.storage_path)) {
     return new NextResponse("Not found", { status: 404 });
   }
 
