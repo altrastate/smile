@@ -10,7 +10,7 @@ import {
   ProductGrid,
   ResultSummary,
 } from "@/features/catalogue/components";
-import { parseCatalogueParams } from "@/features/catalogue/params";
+import { catalogueHref, parseCatalogueParams } from "@/features/catalogue/params";
 import { getCategory, listCategories, listProducts } from "@/features/catalogue/queries";
 
 export const dynamic = "force-dynamic";
@@ -90,7 +90,14 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <CatalogueUnavailable message={products.message} />
         ) : (
           <>
-            <ResultSummary total={products.total} q={filters.q} scoped />
+            <ResultSummary
+              total={products.total}
+              returned={products.products.length}
+              page={filters.page}
+              q={filters.q}
+              scoped
+              resetHref={catalogueHref(`/categories/${category.slug}`, { ...filters, page: 1 })}
+            />
             {products.products.length > 0 ? <ProductGrid products={products.products} /> : null}
             <CataloguePagination pathname={`/categories/${category.slug}`} params={filters} total={products.total} />
           </>

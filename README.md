@@ -33,6 +33,7 @@ The site is at `http://127.0.0.1:3000`.
 ```bash
 npm run typecheck
 npm run lint
+npm test
 npm run build
 ```
 
@@ -41,6 +42,7 @@ npm run build
 - [Phase 01 audit](docs/PHASE_01_AUDIT.md)
 - [Phase 02 report](docs/PHASE_02_REPORT.md)
 - [Phase 03 report](docs/PHASE_03_REPORT.md)
+- [Phase 03.1 report](docs/PHASE_03_1_REPORT.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
 - [Development standards](docs/DEVELOPMENT_STANDARDS.md)

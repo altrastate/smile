@@ -4,6 +4,8 @@ import { z } from "zod";
 import { hasPublicEnv } from "@/lib/env";
 import { toAppError } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeSearch } from "@/features/catalogue/params";
+import { categoryNamePattern, postgrestSearchOr, productSearch } from "@/features/catalogue/search";
 
 export const pageSize = 12;
 
@@ -257,43 +259,64 @@ export async function listProducts(input: {
 
   try {
     const supabase = await createClient();
+    const term = sanitizeSearch(input.q);
     let categoryIds: string[] = [];
 
-    if (input.q) {
-      const matched = await supabase.from("categories").select("id").eq("is_active", true).ilike("name", `%${input.q}%`);
+    if (term) {
+      const matched = await supabase
+        .from("categories")
+        .select("id")
+        .eq("is_active", true)
+        .ilike("name", categoryNamePattern(term));
       if (matched.error) {
         return unavailable(matched.error);
       }
-      categoryIds = z.array(z.object({ id: z.string() })).parse(matched.data ?? []).map((row) => row.id);
+      const parsedIds = z.array(z.object({ id: z.string().uuid() })).safeParse(matched.data ?? []);
+      if (!parsedIds.success) {
+        return unavailable(parsedIds.error);
+      }
+      categoryIds = parsedIds.data.map((row) => row.id);
     }
 
-    let query = supabase
-      .from("products")
-      .select(listSelect, { count: "exact" })
-      .eq("publication_status", "published")
-      .eq("categories.is_active", true)
-      .eq("businesses.approval_status", "approved");
+    const search = productSearch(term, categoryIds);
+    const page = Number.isInteger(input.page) && input.page >= 1 && input.page <= 500 ? input.page : 1;
 
-    if (input.category) {
-      query = query.eq("categories.slug", input.category);
+    const listing = (head = false) => {
+      let query = supabase
+        .from("products")
+        .select(listSelect, { count: "exact", head })
+        .eq("publication_status", "published")
+        .eq("categories.is_active", true)
+        .eq("businesses.approval_status", "approved");
+
+      if (input.category && slugSchema.safeParse(input.category).success) {
+        query = query.eq("categories.slug", input.category);
+      }
+
+      if (search.kind === "text") {
+        query = query.textSearch("search_vector", search.term, { type: "websearch", config: "simple" });
+      } else if (search.kind === "text-or-categories") {
+        query = query.or(postgrestSearchOr(search.term, search.categoryIds));
+      }
+
+      return input.sort === "name"
+        ? query.order("name", { ascending: true }).order("id", { ascending: true })
+        : query
+            .order("published_at", { ascending: false, nullsFirst: false })
+            .order("name", { ascending: true })
+            .order("id", { ascending: true });
+    };
+
+    const from = (page - 1) * pageSize;
+    const { data, error, count } = await listing().range(from, from + pageSize - 1);
+
+    if (error && /range not satisfiable/i.test(error.message)) {
+      const recount = await listing(true);
+      if (recount.error) {
+        return unavailable(recount.error);
+      }
+      return { status: "ok", products: [], total: recount.count ?? 0 };
     }
-
-    if (input.q) {
-      const quoted = `"${input.q.replaceAll('"', "")}"`;
-      const searchFilter = `search_vector.wfts(simple).${quoted}`;
-      query =
-        categoryIds.length > 0
-          ? query.or(`${searchFilter},category_id.in.(${categoryIds.join(",")})`)
-          : query.textSearch("search_vector", input.q, { type: "websearch", config: "simple" });
-    }
-
-    query =
-      input.sort === "name"
-        ? query.order("name", { ascending: true })
-        : query.order("published_at", { ascending: false, nullsFirst: false }).order("name", { ascending: true });
-
-    const from = (input.page - 1) * pageSize;
-    const { data, error, count } = await query.range(from, from + pageSize - 1);
 
     if (error) {
       return unavailable(error);

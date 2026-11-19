@@ -118,7 +118,7 @@ Not run, and not claimed:
 - Sorting or pagination across more than one page. There are no product rows.
 - A product detail page for an existing product.
 - Rendering a stored product image. Only the letter fallback is available.
-- Row level security for unpublished products and unapproved businesses. Those rows were not created. An anonymous insert into `categories` was denied.
+- Row level security for unpublished products and unapproved businesses. Those rows were not created. An anonymous insert into `categories` was denied. Phase 03.1 repeated the anonymous write checks and recorded them in `docs/PHASE_03_1_REPORT.md`.
 - Local `supabase db reset`, advisors, or `supabase gen types`. Docker is not running.
 - GitHub Actions. No workflow run was inspected.
 
@@ -126,11 +126,7 @@ No test products were inserted into the remote project.
 
 ## Blockers
 
-Docker is still unavailable, so the migration was applied to the linked project rather than a local database. `src/types/database.ts` was written by hand to match the migration. Regenerate it when convenient:
-
-```bash
-supabase gen types typescript --linked > src/types/database.ts
-```
+Docker is still unavailable, so the migration was applied to the linked project rather than a local database. Phase 03.1 later generated `src/types/database.ts` from that linked schema. See `docs/PHASE_03_1_REPORT.md`.
 
 ## Deferred
 

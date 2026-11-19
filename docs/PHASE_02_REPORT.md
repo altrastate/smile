@@ -59,7 +59,7 @@ Removed from the public site: `src/components/foundation/foundation-panel.tsx`. 
 
 ## Technical improvements
 
-- CI: `.github/workflows/ci.yml` checks out the repo, uses Node.js 22 with the npm cache, runs `npm ci`, typecheck, lint, and `npm run build`. It does not print secrets. The public pages do not call Supabase, so the build does not need credentials.
+- CI: `.github/workflows/ci.yml` checks out the repo, uses Node.js 22 with the npm cache, runs `npm ci`, typecheck, lint, and `npm run build`. It does not print secrets. The public pages do not call Supabase, so the build does not need credentials. The Phase 02 push succeeded on GitHub Actions: [run 44499629703](https://github.com/nutracueticals/Smile-Site/actions/runs/44499629703) for commit `a48ba06`.
 - Node: Next.js 16.4.6 requires `>=20.9.0`. `package.json` engines match that. CI uses Node.js 22, which satisfies it.
 - Proxy: `getUser()` still runs when the public environment is present. A missing session is ignored. A network failure is logged and the response continues. Any other thrown error is rethrown. Missing environment variables still skip the client.
 
@@ -90,5 +90,5 @@ Browser, against `http://localhost:3000` while `npm run dev` was running:
 - There is no catalogue, cart, account, application form, or verified phone, email, address, or social account.
 - Category themes are not links to category pages.
 - The hero image is a drawing, not photography.
-- CI has not been observed running on GitHub. The same commands passed locally.
+- CI has since been observed. The Phase 02 workflow run succeeded: https://github.com/nutracueticals/Smile-Site/actions/runs/44499629703
 - Phase 03 has not been started.

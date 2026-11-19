@@ -19,7 +19,10 @@ export function sanitizeSearch(value: string | undefined) {
     .replace(/[^\p{L}\p{N}\s-]/gu, " ")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 80);
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-")
+    .slice(0, 80)
+    .trim();
 }
 
 export function parseCatalogueParams(input: {

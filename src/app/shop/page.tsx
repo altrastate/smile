@@ -8,7 +8,7 @@ import {
   ProductGrid,
   ResultSummary,
 } from "@/features/catalogue/components";
-import { parseCatalogueParams } from "@/features/catalogue/params";
+import { catalogueHref, parseCatalogueParams } from "@/features/catalogue/params";
 import { listCategories, listProducts } from "@/features/catalogue/queries";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +63,14 @@ export default async function ShopPage({
           <CatalogueUnavailable message={products.message} />
         ) : (
           <>
-            <ResultSummary total={products.total} q={params.q} scoped={Boolean(params.category)} />
+            <ResultSummary
+              total={products.total}
+              returned={products.products.length}
+              page={params.page}
+              q={params.q}
+              scoped={Boolean(params.category)}
+              resetHref={catalogueHref("/shop", { ...params, page: 1 })}
+            />
             {products.products.length > 0 ? <ProductGrid products={products.products} /> : null}
             <CataloguePagination pathname="/shop" params={params} total={products.total} />
           </>

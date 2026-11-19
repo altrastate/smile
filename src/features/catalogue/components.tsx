@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ui/product-card";
 import type { CatalogueCategory } from "@/features/catalogue/queries";
 import { pageSize, type CatalogueProduct } from "@/features/catalogue/queries";
 import { catalogueHref, type CatalogueParams } from "@/features/catalogue/params";
+import { cataloguePageState } from "@/features/catalogue/search";
 import { Alert } from "@/components/ui/alert";
 
 export function CatalogueUnavailable({ message }: { message: string }) {
@@ -131,8 +132,8 @@ export function CataloguePagination({
   params: CatalogueParams;
   total: number;
 }) {
-  const pageCount = Math.ceil(total / pageSize);
-  if (pageCount <= 1) {
+  const { pageCount, outOfRange } = cataloguePageState(total, params.page, pageSize);
+  if (pageCount <= 1 || outOfRange) {
     return null;
   }
 
@@ -164,13 +165,29 @@ export function CataloguePagination({
 
 export function ResultSummary({
   total,
+  returned,
+  page,
   q,
   scoped,
+  resetHref,
 }: {
   total: number;
+  returned: number;
+  page: number;
   q: string;
   scoped: boolean;
+  resetHref: string;
 }) {
+  if (returned === 0 && cataloguePageState(total, page, pageSize).outOfRange) {
+    return (
+      <p className="text-base text-charcoal-700">
+        This page is outside the results.{" "}
+        <Link href={resetHref} className="font-semibold text-forest-800">
+          Back to the first page
+        </Link>
+      </p>
+    );
+  }
   if (total === 0 && q) {
     return <p className="text-base text-charcoal-700">No published products match “{q}”.</p>;
   }

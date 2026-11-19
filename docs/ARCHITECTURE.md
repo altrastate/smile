@@ -121,15 +121,17 @@ The migration creates:
 
 A product is publicly readable only when it is `published`, its business is `approved`, and its category is active. Business approval does not publish that business's products. Anonymous and authenticated roles can select those rows and cannot insert, update, or delete them. The `product-images` bucket is private. A storage select policy allows a file to be read only when a visible `product_images` row points at it. There is no public upload policy.
 
+Catalogue queries sanitise search text before it reaches Supabase. Product text uses the parameterised text-search filter. A category-name match is included only with category ids that are UUIDs. Listing order ends with the product id. A page past the result set is returned as an empty page.
+
 `private.set_updated_at` maintains `updated_at`. That function is not in an exposed schema.
 
-`src/types/database.ts` matches this migration. It was written by hand because `supabase gen types` needs a database, and none was available. Regenerate it after the migration is applied:
+`src/types/database.ts` is generated from the linked database:
 
 ```bash
-supabase gen types typescript --local > src/types/database.ts
+supabase gen types typescript --linked --schema public > src/types/database.ts
 ```
 
-Apply the migration only in an environment that has been approved. Do not run `supabase db push` against the linked project unless that approval is explicit.
+Regenerate it after a schema change. Do not run `supabase db push` against the linked project unless that approval is explicit.
 
 ## What this phase does not include
 
