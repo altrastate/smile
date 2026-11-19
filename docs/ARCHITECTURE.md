@@ -38,12 +38,12 @@ Implemented pages:
 | `/` | Homepage |
 | `/about` | About Smile |
 | `/contact` | Contact status. No address, telephone, or email is published |
-| `/shop`, `/categories`, `/businesses`, `/services` | Honest “not open yet” pages. They are not catalogues |
+| `/shop`, `/categories`, `/businesses`, `/services` | Shop and categories read the catalogue. Businesses and services are still not open |
 | Any other path | `not-found` |
 
 `/account` and the later auth, business, and admin paths stay unimplemented. The header Account control says that accounts are not open. On smaller screens that note is inside the menu.
 
-Discovery themes in `src/config/discovery.ts` are editorial categories. They are not product records. The future path is: a producer publishes a product in Supabase, and the public marketplace reads that record. Do not add a hardcoded catalogue beside that.
+Discovery themes in `src/config/discovery.ts` use the same slugs as the six categories inserted by the catalogue migration. They are not product records. The future path is: a producer publishes a product in Supabase, and the public marketplace reads that record. Do not add a hardcoded product list beside that.
 
 ## Folder structure
 
@@ -108,23 +108,29 @@ Do not invent migration filenames. Do not use `apply_migration` to iterate on a 
 
 ### Database plan
 
-No business tables are created in Phase 01. The remote `public` schema is empty, and it stays empty.
+No business tables were created in Phase 01. Phase 03 adds the catalogue migration `supabase/migrations/20261119095711_catalogue_foundation.sql`. It has been applied to the linked project `wptcofcimxqkznqdpjbr`. Local Docker was not used.
 
-Later phases add tables only when that phase needs them:
+The migration creates:
 
-| Phase | Data |
-| --- | --- |
-| 03 | Categories and public product reads |
-| 04 | Profiles, business applications, approval status |
-| 05–07 | Producer catalogue, inventory, variants, prices |
-| 08–11 | Carts, orders, payments, delivery records |
-| 12–14 | Directory profiles, quotations, services |
-| 15–17 | Moderation records, notifications, country and currency |
+| Table | Role in Phase 03 | Left for a later phase |
+| --- | --- | --- |
+| `businesses` | Public name, slug, and approval status (`pending`, `approved`, `rejected`, `suspended`) so a product can be attributed | Profiles, applications, ownership, and the approval workflow (Phase 04) |
+| `categories` | Name, slug, description, optional parent, display order, active flag. Six root categories are inserted | No separate category admin |
+| `products` | Catalogue record belonging to one business and one category, with publication status `draft`, `published`, or `archived` | Producer editing (Phase 05), variants and prices (Phase 07) |
+| `product_images` | Storage path, alt text, order, and one primary image | Upload interface (Phase 05) |
 
-Orders, payments, and delivery are separate concerns. A payment row is not a substitute for an order, and a direct vendor payment must be distinguishable from a platform-mediated payment. Business accounts require administrator approval before they can trade. Those rules are recorded here so later phases do not invent a different split.
+A product is publicly readable only when it is `published`, its business is `approved`, and its category is active. Business approval does not publish that business's products. Anonymous and authenticated roles can select those rows and cannot insert, update, or delete them. The `product-images` bucket is private. A storage select policy allows a file to be read only when a visible `product_images` row points at it. There is no public upload policy.
 
-Storage buckets for product images come with the catalogue, not before there are product records.
+`private.set_updated_at` maintains `updated_at`. That function is not in an exposed schema.
+
+`src/types/database.ts` matches this migration. It was written by hand because `supabase gen types` needs a database, and none was available. Regenerate it after the migration is applied:
+
+```bash
+supabase gen types typescript --local > src/types/database.ts
+```
+
+Apply the migration only in an environment that has been approved. Do not run `supabase db push` against the linked project unless that approval is explicit.
 
 ## What this phase does not include
 
-The public website, navigation, and homepage exist. Catalogue data, accounts, dashboards, checkout, payments, networking, and administration screens are not implemented.
+The public catalogue reads Supabase. Accounts, dashboards, checkout, payments, networking, and administration screens are not implemented. The catalogue migration has been applied to the linked database. The six categories exist. No products are listed yet.

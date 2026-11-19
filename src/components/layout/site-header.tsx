@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AccountNotice } from "@/components/layout/account-notice";
@@ -29,7 +30,15 @@ export function SiteHeader() {
         </Link>
         <DesktopNav />
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <SearchDialog />
+          <Suspense
+            fallback={
+              <span className="inline-flex min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800">
+                Search
+              </span>
+            }
+          >
+            <SearchDialog />
+          </Suspense>
           <span className="hidden lg:inline-flex">
             <AccountNotice />
           </span>

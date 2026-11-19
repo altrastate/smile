@@ -10,7 +10,7 @@ export default function NotFound() {
     <ComingSoon
       eyebrow="Not found"
       title="This page is not available"
-      description="The address is not part of the current site. Home, about, contact, and the not-yet-open marketplace pages are the pages that exist."
+      description="That address does not match a page on this site."
     />
   );
 }

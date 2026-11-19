@@ -2,7 +2,7 @@
 
 Web application for the Smile Nutraceuticals marketplace, developed by Altrastate Technologies Ltd.
 
-The public site explains the marketplace. The catalogue, accounts, and checkout are not open.
+The public site explains the marketplace and reads the product catalogue from Supabase. Accounts and checkout are not open. The catalogue migration has been applied to the linked database. No products are listed yet.
 
 Repository: https://github.com/nutracueticals/Smile-Site
 
@@ -40,6 +40,7 @@ npm run build
 
 - [Phase 01 audit](docs/PHASE_01_AUDIT.md)
 - [Phase 02 report](docs/PHASE_02_REPORT.md)
+- [Phase 03 report](docs/PHASE_03_REPORT.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
 - [Development standards](docs/DEVELOPMENT_STANDARDS.md)

@@ -26,8 +26,8 @@ export default function AboutPage() {
         </p>
         <p>{site.tagline}.</p>
         <p>
-          The public site currently explains the marketplace. The catalogue, accounts, applications, and
-          checkout are not open.
+          The shop lists published products from approved businesses. No products are listed yet. Accounts,
+          applications, and checkout are not open.
         </p>
         <p>Developed by {site.developer}.</p>
       </div>

@@ -27,8 +27,8 @@ export function TrustSection() {
         <article className="border border-beige-300 p-5">
           <h3 className="font-serif text-2xl text-forest-900">Participation</h3>
           <p className="mt-3 text-base leading-relaxed text-charcoal-700">
-            Businesses will be expected to describe their goods accurately. The catalogue that will hold
-            those records is not open yet.
+            Businesses will be expected to describe their goods accurately. The shop lists a product only
+            after it is published and the business is approved. No products are listed yet.
           </p>
         </article>
       </div>

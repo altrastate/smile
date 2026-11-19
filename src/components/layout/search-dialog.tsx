@@ -1,26 +1,38 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export function SearchDialog() {
+  const router = useRouter();
+  const params = useSearchParams();
   const inputId = useId();
-  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState(params.get("q") ?? "");
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = query.trim();
+    setOpen(false);
+    router.push(value ? `/shop?q=${encodeURIComponent(value)}` : "/shop");
+  }
 
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) {
+          setQuery(params.get("q") ?? "");
+        }
+      }}
+    >
       <DialogTrigger className="inline-flex min-h-11 items-center border border-forest-800 px-3 text-sm font-semibold text-forest-800">
         Search
       </DialogTrigger>
-      <DialogContent
-        title="Search"
-        description="Product search will be available when the catalogue launches. This field is not connected to a catalogue."
-      >
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-          }}
-        >
+      <DialogContent title="Search" description="Search published products in the catalogue.">
+        <form onSubmit={onSubmit}>
           <label htmlFor={inputId} className="text-sm font-semibold text-forest-800">
             Search products
           </label>
@@ -31,7 +43,7 @@ export function SearchDialog() {
               onChange={(event) => setQuery(event.target.value)}
               type="search"
               autoComplete="off"
-              className="min-h-11 w-full border border-beige-300 bg-ivory-50 px-3 text-charcoal-900"
+              className="min-h-11 w-full border border-beige-300 bg-ivory-50 px-3 text-base text-charcoal-900"
             />
             <button
               type="button"
@@ -41,9 +53,9 @@ export function SearchDialog() {
               Clear
             </button>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-charcoal-700" role="status">
-            Product search will be available when the catalogue launches. Nothing is searched or saved.
-          </p>
+          <button type="submit" className="mt-4 min-h-11 border border-forest-800 bg-forest-800 px-4 font-semibold text-ivory-50">
+            Search the catalogue
+          </button>
         </form>
       </DialogContent>
     </Dialog>

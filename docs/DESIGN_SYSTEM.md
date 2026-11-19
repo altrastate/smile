@@ -79,7 +79,7 @@ Shared controls are in `src/components/ui`.
 | Tabs | One visible panel at a time |
 | Breadcrumbs | The current crumb is text, not a link |
 | Pagination | Previous, numbered pages, Next. Disabled at the ends |
-| Product card | Name, image, optional price text, optional availability, optional link. It is not mounted in Phase 01 because there is no catalogue |
+| Product card | Name, category, business, optional summary, image or a letter fallback. Price and stock are not shown |
 | Section heading | Eyebrow, title, optional description |
 | Empty state | Honest explanation when a feature is absent |
 | Loading state | Text plus a static mark, with `role="status"`. It is not shown on a timer |

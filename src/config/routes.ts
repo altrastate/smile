@@ -15,9 +15,9 @@ export type AppRoute = {
 export const appRoutes = [
   { path: "/", label: "Home", group: "public", implemented: true },
   { path: "/shop", label: "Shop", group: "public", implemented: true },
-  { path: "/shop/[slug]", label: "Product", group: "public", implemented: false },
+  { path: "/shop/[slug]", label: "Product", group: "public", implemented: true },
   { path: "/categories", label: "Categories", group: "public", implemented: true },
-  { path: "/categories/[slug]", label: "Category", group: "public", implemented: false },
+  { path: "/categories/[slug]", label: "Category", group: "public", implemented: true },
   { path: "/businesses", label: "Businesses", group: "public", implemented: true },
   { path: "/businesses/[slug]", label: "Business", group: "public", implemented: false },
   { path: "/services", label: "Services", group: "public", implemented: true },

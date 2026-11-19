@@ -2,26 +2,32 @@
 export const discoveryThemes = [
   {
     title: "Natural foods",
+    slug: "natural-foods",
     text: "Foods from farms and producers.",
   },
   {
     title: "Herbal products",
+    slug: "herbal-products",
     text: "Preparations made from plants.",
   },
   {
     title: "Nutritional supplements",
+    slug: "nutritional-supplements",
     text: "Products intended to supplement the diet.",
   },
   {
     title: "Botanical ingredients",
+    slug: "botanical-ingredients",
     text: "Materials for makers and manufacturers.",
   },
   {
     title: "Organic agricultural products",
+    slug: "organic-agricultural-products",
     text: "Crops and produce from growers.",
   },
   {
     title: "Natural personal care",
+    slug: "natural-personal-care",
     text: "Care products based on natural ingredients.",
   },
 ] as const;
