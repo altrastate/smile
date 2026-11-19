@@ -74,7 +74,11 @@ Not executed: anonymous, producer A, producer B, pending, suspended, reviewer, a
 
 ## 13. CI results
 
-Recorded after the commit is pushed.
+Success for `a5eb4623e7b450e716644c3529e4d2fa1e929451`:
+
+https://github.com/nutracueticals/Smile-Site/actions/runs/44534349957
+
+That commit contains the producer workspace, the listing pages, and the ignore-rule correction. Install, typecheck, lint, test, and build are the CI steps.
 
 ## 14. Browser testing results
 
